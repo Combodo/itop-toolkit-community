@@ -1,0 +1,44 @@
+body {
+	font-family: Verdana,Arial,Helvetica,Sans-Serif;
+	background: #f6f6f1;
+	margin:10px;
+	padding:0;
+	overflow: auto;
+}
+h1 {
+	color: #1C94C4;
+	font-size: 18pt;
+	background: #f6f6f1 url(../images/itop-logo.png) top left no-repeat;
+	padding-left: 150px;
+	vertical-align: middle;
+	height: 54px;
+	line-height: 54px;
+}
+h3 {
+	display:none;
+}
+#content_php>div p {
+	display:none;
+}
+#content_php>div p.class_name {
+	display: inline;
+}
+.sql_ok {
+	color:#060;
+}
+.sql_error {
+	color:#600;
+}
+.sql_checkbox {
+	margin-left: 20px;
+	font-family: Courrier, Courrier New, Nimbus Mono L, monospaced;
+}
+.info {
+	border: 1px solid #1C94C4;
+	background-color: #c0dde5;
+	padding: 0.5em;
+	margin: 0.5em;
+	text-align:center;
+	width: 95%;
+	-moz-border-radius: 0.5em;	
+}
