@@ -201,6 +201,30 @@ function CheckDBSchema()
 	return $aAnalysis;	
 }
 
+function InitDataModel($sConfigFileName, $bModelOnly = true)
+{
+	require_once(APPROOT.'/core/log.class.inc.php');
+	require_once(APPROOT.'/core/kpi.class.inc.php');
+	require_once(APPROOT.'/core/coreexception.class.inc.php');
+	require_once(APPROOT.'/core/dict.class.inc.php');
+	require_once(APPROOT.'/core/attributedef.class.inc.php');
+	require_once(APPROOT.'/core/filterdef.class.inc.php');
+	require_once(APPROOT.'/core/stimulus.class.inc.php');
+	require_once(APPROOT.'/core/MyHelpers.class.inc.php');
+	require_once(APPROOT.'/core/expression.class.inc.php');
+	require_once(APPROOT.'/core/cmdbsource.class.inc.php');
+	require_once(APPROOT.'/core/sqlquery.class.inc.php');
+	require_once(APPROOT.'/core/dbobject.class.php');
+	require_once(APPROOT.'/core/dbobjectsearch.class.php');
+	require_once(APPROOT.'/core/dbobjectset.class.php');
+	require_once(APPROOT.'/application/cmdbabstract.class.inc.php');
+	require_once(APPROOT.'/core/userrights.class.inc.php');
+	require_once(APPROOT.'/setup/moduleinstallation.class.inc.php');
+
+	MetaModel::Startup($sConfigFileName, $bModelOnly);
+}
+
+
 /****************************************************************************
  * 
  * Main Program
@@ -218,17 +242,21 @@ else // iTop 1.0 & 1.0.1
 
 try
 {
-	require_once(APPROOT.'/application/application.inc.php');
-	require_once(APPROOT.'/application/startup.inc.php');
+	//require_once(APPROOT.'/application/application.inc.php');
+	//require_once(APPROOT.'/application/startup.inc.php');
+	require_once(APPROOT.'/application/utils.inc.php');
+
 	$sOperation = utils::ReadParam('operation', '');
 
 	switch($sOperation)
 	{
 		case 'check_model':
+		InitDataModel(ITOP_CONFIG_FILE, true);
 		MetaModel::CheckDefinitions();
 		break;
 		
 		case 'check_dictionary':
+		InitDataModel(ITOP_CONFIG_FILE, true);
 		$sDefaultCode = utils::ReadParam('lang', 'EN US');
 		$aAvailableLanguages = Dict::GetLanguages();
 		echo "<select id=\"language\" name=\"language\">\n";
@@ -245,6 +273,7 @@ try
 		break;
 		
 		case 'check_db_schema':
+		InitDataModel(ITOP_CONFIG_FILE, false);
 		$aAnalysis = CheckDBSchema();
 		
 		$aSQLFixes = array();
@@ -341,6 +370,7 @@ try
 		break;
 		
 		case 'apply_db_schema':
+		InitDataModel(ITOP_CONFIG_FILE, false);
 		$aAnalysis = 	$aAnalysis = CheckDBSchema();
 		$aTables = utils::ReadParam('table', array());
 		$aViews = utils::ReadParam('view', array());
