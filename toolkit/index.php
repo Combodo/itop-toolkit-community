@@ -370,6 +370,7 @@ try
 					if (data == '')
 					{
 						$('#content_php').append('Ok, no problem detected.');
+						$('#content_php').append('<p><input type="button" value="Refresh" onClick="CheckConsistency();"/></p>');
 					}
 					else
 					{
