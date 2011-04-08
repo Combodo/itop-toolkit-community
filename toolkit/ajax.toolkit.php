@@ -221,7 +221,9 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
 	require_once(APPROOT.'/core/userrights.class.inc.php');
 	require_once(APPROOT.'/setup/moduleinstallation.class.inc.php');
 
-	MetaModel::Startup($sConfigFileName, $bModelOnly);
+   $oConfig = new Config($sConfigFileName);
+	MetaModel::ResetCache($oConfig);
+	MetaModel::Startup($sConfigFileName, $bModelOnly, false /* allow cache */);
 }
 
 
