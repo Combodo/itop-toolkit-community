@@ -27,7 +27,7 @@ class SetupWebPage {
 		'mandatory' => 'boolean',
 		'visible' => 'boolean',
 		'datamodel' =>  'array of data model files',
-		'dictionary' => 'array of dictionary files',
+		//'dictionary' => 'array of dictionary files', // No longer mandatory, now automated
 		'data.struct' => 'array of structural data files',
 		'data.sample' => 'array of sample data files',
 		'doc.manual_setup' => 'url',
@@ -65,8 +65,26 @@ class SetupWebPage {
 				// being loaded, let's update their path to store path relative to the application directory
 				foreach(self::$m_aModules[$sId][$sAttribute] as $idx => $sRelativePath)
 				{
-				self::$m_aModules[$sId][$sAttribute][$idx] = self::$m_sModulePath.'/'.$sRelativePath;
+					self::$m_aModules[$sId][$sAttribute][$idx] = self::$m_sModulePath.'/'.$sRelativePath;
 				}
+			}
+		}
+		// Populate automatically the list of dictionary files
+		if(preg_match('|^([^/]+)|', $sId, $aMatches)) // ModuleName = everything before the first forward slash
+		{
+			$sModuleName = $aMatches[1];
+			$sDir = dirname($sFilePath);
+			if ($hDir = opendir($sDir))
+			{
+				while (($sFile = readdir($hDir)) !== false)
+				{
+					$aMatches = array();
+					if (preg_match("/^[^\\.]+.dict.$sModuleName.php$/i", $sFile, $aMatches)) // Dictionary files named like <Lang>.dict.<ModuleName>.php are loaded automatically
+					{
+						self::$m_aModules[$sId]['dictionary'][] = self::$m_sModulePath.'/'.$sFile;
+					}
+				}
+				closedir($hDir);
 			}
 		}
 	}
