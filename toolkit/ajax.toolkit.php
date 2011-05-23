@@ -52,7 +52,7 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US', $sOutputFi
 	// Need to invent the "module", to characterize the origins of a class
 	if (strlen($sModules) == 0)
 	{
-		$aModules = array('bizmodel', 'core/cmdb', 'gui' , 'application', 'addon/userrights');
+		$aModules = array('bizmodel', 'core/cmdb', 'gui' , 'application', 'addon/userrights', 'monitoring');
 	}
 	else
 	{
@@ -260,6 +260,7 @@ try
 		case 'check_dictionary':
 		InitDataModel(ITOP_CONFIG_FILE, true);
 		$sDefaultCode = utils::ReadParam('lang', 'EN US');
+		$sModules = utils::ReadParam('modules', 'bizmodel');
 		$aAvailableLanguages = Dict::GetLanguages();
 		echo "<select id=\"language\" name=\"language\">\n";
 		foreach($aAvailableLanguages as $sLangCode => $aInfo)
@@ -267,10 +268,31 @@ try
 			$sSelected = ($sLangCode == $sDefaultCode ) ? 'selected ' : '';
 			echo "<option value=\"{$sLangCode}\" $sSelected>{$aInfo['description']} ({$aInfo['localized_description']})</option>\n";
 		}
+		$aModules = array(
+			'bizmodel',
+			'core/cmdb',
+			'gui',
+			'application',
+			'addon/userrights',
+			'monitoring',
+		);
+		echo "</select>\n";
+		echo "<select id=\"modules\" name=\"modules\">\n";
+		foreach ($aModules as $sProposedModules)
+		{
+			if ($sProposedModules == $sModules)
+			{
+				echo "<option value=\"$sProposedModules\" SELECTED>$sProposedModules</option>\n";
+			}
+			else
+			{
+				echo "<option value=\"$sProposedModules\">$sProposedModules</option>\n";
+			}
+		}
 		echo "</select>\n";
 		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDictionary();\"/>\n";
 		echo "<textarea style=\"width:100%;height:400px;\">";
-		echo MakeDictionaryTemplate('bizmodel', $sDefaultCode);
+		echo MakeDictionaryTemplate($sModules, $sDefaultCode);
 		echo "</textarea>\n";
 		break;
 		

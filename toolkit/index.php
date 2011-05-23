@@ -433,8 +433,14 @@ try
 		{
 			sLang = oLang.val();
 		}
+		var oModules = $('#modules');
+		var sModules = 'bizmodel';
+		if (oModules.length > 0)
+		{
+			sModules = oModules.val();
+		}
 		$('#content_dictionary').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Searching for missing dictionary items');
-		ajax_request = $.get('ajax.toolkit.php', { 'operation': 'check_dictionary', 'lang': sLang },
+		ajax_request = $.get('ajax.toolkit.php', { 'operation': 'check_dictionary', 'lang': sLang, 'modules': sModules },
 				function(data)
 				{
 					$('#content_dictionary').empty();
