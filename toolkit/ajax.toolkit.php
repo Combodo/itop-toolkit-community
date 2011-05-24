@@ -253,7 +253,7 @@ try
 	switch($sOperation)
 	{
 		case 'check_model':
-		InitDataModel(ITOP_CONFIG_FILE, true);
+		InitDataModel(ITOP_CONFIG_FILE, false);
 		MetaModel::CheckDefinitions();
 		break;
 		
@@ -460,5 +460,12 @@ catch(Exception $e)
 {
 	echo "<p>An error occured while processing the PHP files of the data model:</p><p>".$e->getMessage();
 	echo "</p><p>Check the PHP files describing the data model before running the toolkit again !</p>";
+	
+	/* Romain: I had implemented this to view the call stack, otherwise if the Exception was not trapped, the Apache server was crashing... why ?
+	if ($e instanceof CoreException)
+	{
+		echo "<p>".$e->getTraceAsHtml()."</p>\n";
+	}
+	*/
 }	
 ?>
