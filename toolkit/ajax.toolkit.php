@@ -393,6 +393,58 @@ try
 		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L, monospaced\">".implode(";\n", $aSQLFixes)."</textarea>";
 		break;
 		
+		case 'check_hk':
+		InitDataModel(ITOP_CONFIG_FILE, false);
+		echo "<pre>\n";
+		$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
+		echo "</pre>\n";
+		if ($bUpdateNeeded)
+		{
+			echo "<p><button onClick=\"BuildHK(false);\">Compute HKeys</button>&nbsp;&nbsp;<button onClick=\"CheckHK();\"> Refresh </button></p>\n";
+		}
+		else
+		{
+			echo "<p><button onClick=\"BuildHK(true);\">Rebuild HKeys Anyway</button>&nbsp;&nbsp;<button onClick=\"CheckHK();\"> Refresh </button></p>\n";		
+		}
+		break;
+		
+		case 'build_hk':
+		$bForce = utils::ReadParam('force', 0);
+		InitDataModel(ITOP_CONFIG_FILE, false);
+		echo "<pre>\n";
+		$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
+		echo "</pre>\n";
+		echo "<p><button onClick=\"CheckHK();\"> Refresh </button></p>\n";
+		break;
+		
+
+		case 'check_datasources':
+		InitDataModel(ITOP_CONFIG_FILE, false);
+		echo "<pre>\n";
+		$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
+		echo "</pre>\n";
+		if ($bUpdateNeeded)
+		{
+			echo "<p><button onClick=\"FixDataSources();\">Fix Data Sources</button>&nbsp;&nbsp;<button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";
+		}
+		else
+		{
+			echo "<p><button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";		
+		}
+		break;
+
+		case 'fix_datasources':
+		InitDataModel(ITOP_CONFIG_FILE, false);
+		$oChange = MetaModel::NewObject("CMDBChange");
+		$oChange->Set("date", time());
+		$oChange->Set("userinfo", 'Change made via the toolkit');
+		$oChange->DBInsert();
+		echo "<pre>\n";
+		$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/, $oChange);
+		echo "</pre>\n";
+		echo "<p><button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";		
+		break;
+
 		case 'apply_db_schema':
 		InitDataModel(ITOP_CONFIG_FILE, false);
 		$aAnalysis = 	$aAnalysis = CheckDBSchema();

@@ -299,6 +299,26 @@ function CheckDBSchema($oP)
 }
 
 /**
+ * Check the database schema
+ */
+function CheckDataIntegrity($oP)
+{
+	$oP->add("<div class=\"info\">");
+	$oP->p("Use this page to check the integrity of the data in the iTop database.");
+	$oP->add("</div>");
+	
+	$oP->add("<h2>Synchronization Data Sources</h2>");
+	$oP->add("<div id=\"content_datasources\">");
+	$oP->add("</div>\n");
+	$oP->add_ready_script("\nCheckDataSources();\n");
+	
+	$oP->add("<h2>Hierarchical Keys</h2>");
+	$oP->add("<div id=\"content_hk\">\n");
+	$oP->add("</div>\n");
+	$oP->add_ready_script("\nCheckHK();\n");
+}
+
+/**
  * Check the dictionary definitions
  */
 function CheckDictionary($oP)
@@ -321,6 +341,7 @@ else // iTop 1.0 & 1.0.1
 }
 require_once(APPROOT.'application/nicewebpage.class.inc.php');
 require_once(APPROOT.'application/utils.inc.php');
+require_once(APPROOT.'application/utils.inc.php');
 
 $sOperation = utils::ReadParam('operation', 'step1');
 
@@ -329,8 +350,14 @@ $oP->add_linked_stylesheet('./toolkit.css');
 
 try
 {
+	//$sAppRoot = utils::GetAbsoluteUrlAppRoot();
 	$oP->add_script(
 <<<EOF
+	function GetAbsoluteUrlAppRoot()
+	{
+		return '../';
+	}
+	
 	function doApply()
 	{
 		var oMap = { operation: 'apply_db_schema' };
@@ -357,7 +384,7 @@ try
 			{
 				$('#apply_sql_indicator').html('<img title=\"loading...\" src=\"../images/indicator.gif\" />');					
 				$('#btn_sql_apply').attr('disabled', 'disabled');
-				ajax_request = $.post('ajax.toolkit.php', oMap,
+				ajax_request = $.post(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', oMap,
 						function(data)
 						{
 							$('#content_apply_sql').empty();
@@ -381,7 +408,7 @@ try
 	function CheckConsistency()
 	{
 		$('#content_php').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Checking the consistency of the data model definition...');
-		ajax_request = $.get('ajax.toolkit.php', { 'operation': 'check_model' },
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_model' },
 				function(data)
 				{
 					$('#content_php').empty();
@@ -408,7 +435,7 @@ try
 	function CheckDBSchema()
 	{
 		$('#content_schema').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Checking database schema...');
-		ajax_request = $.get('ajax.toolkit.php', { 'operation': 'check_db_schema' },
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_db_schema' },
 				function(data)
 				{
 					$('#content_schema').empty();
@@ -420,6 +447,102 @@ try
 					{
 						$('#content_schema').append(data);
 						$('#btn_sql_apply').attr('disabled', '');
+					}
+				}
+		);		
+	}
+	
+	function CheckDataSources()
+	{
+		$('#content_datasources').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Checking data sources integrity...');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_data_sources' },
+				function(data)
+				{
+					$('#content_datasources').empty();
+					if (data == '')
+					{
+						$('#content_datasources').append('<p>Ok, no problem detected.</p>');
+					}
+					else
+					{
+						$('#content_datasources').append(data);
+						$('#btn_datasources_apply').attr('disabled', '');
+					}
+				}
+		);		
+	}
+	
+	function CheckDataSources()
+	{
+		$('#content_datasources').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Checking data sources integrity...');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_datasources' },
+				function(data)
+				{
+					$('#content_datasources').empty();
+					if (data == '')
+					{
+						$('#content_datasources').append('<p>Ok, no problem detected.</p>');
+					}
+					else
+					{
+						$('#content_datasources').append(data);
+					}
+				}
+		);		
+	}
+	
+	function FixDataSources()
+	{
+		$('#content_datasources').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Fixing data sources integrity...');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'fix_datasources'},
+				function(data)
+				{
+					$('#content_datasources').empty();
+					if (data == '')
+					{
+						$('#content_datasources').append('<p>Ok, no problem detected.</p>');
+					}
+					else
+					{
+						$('#content_datasources').append(data);
+					}
+				}
+		);		
+	}
+	
+	function CheckHK()
+	{
+		$('#content_hk').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Checking hierarchical keys integrity...');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_hk' },
+				function(data)
+				{
+					$('#content_hk').empty();
+					if (data == '')
+					{
+						$('#content_hk').append('<p>Ok, no problem detected.</p>');
+					}
+					else
+					{
+						$('#content_hk').append(data);
+					}
+				}
+		);		
+	}
+	
+	function BuildHK(bForce)
+	{
+		$('#content_hk').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Fixing hierarchical keys integrity...');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'build_hk', 'force': bForce },
+				function(data)
+				{
+					$('#content_hk').empty();
+					if (data == '')
+					{
+						$('#content_hk').append('<p>Ok, no problem detected.</p>');
+					}
+					else
+					{
+						$('#content_hk').append(data);
 					}
 				}
 		);		
@@ -440,7 +563,7 @@ try
 			sModules = oModules.val();
 		}
 		$('#content_dictionary').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Searching for missing dictionary items');
-		ajax_request = $.get('ajax.toolkit.php', { 'operation': 'check_dictionary', 'lang': sLang, 'modules': sModules },
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_dictionary', 'lang': sLang },
 				function(data)
 				{
 					$('#content_dictionary').empty();
@@ -475,7 +598,8 @@ EOF
 	$oP->add("<ul>\n");
 	$oP->add("<li><a href=\"#tab_0\" class=\"tab\"><span>Data Model Consistency</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_1\" class=\"tab\"><span>Database Schema</span></a></li>\n");
-	$oP->add("<li><a href=\"#tab_2\" class=\"tab\"><span>Translations / Dictionnary</span></a></li>\n");
+	$oP->add("<li><a href=\"#tab_2\" class=\"tab\"><span>Data Integrity</span></a></li>\n");
+	$oP->add("<li><a href=\"#tab_3\" class=\"tab\"><span>Translations / Dictionnary</span></a></li>\n");
 	$oP->add("</ul>\n");
 	$oP->add("<div id=\"tab_0\">");
 	CheckConsistency($oP);
@@ -484,9 +608,15 @@ EOF
 	$oP->add("<div id=\"tab_1\">");
 	CheckDBSchema($oP);
 	$oP->add("</div>\n");
+	
 	$oP->add("<div id=\"tab_2\">");
+	CheckDataIntegrity($oP);
+	$oP->add("</div>\n");
+	
+	$oP->add("<div id=\"tab_3\">");
 	CheckDictionary($oP);
 	$oP->add("</div>\n");
+	
 	$oP->add("</div>\n<!-- end of tabs-->\n");
 	$oP->add_ready_script(
 <<<EOF
