@@ -292,7 +292,7 @@ function CheckDBSchema($oP)
 	$oP->add("<div class=\"info\">");
 	$oP->p("Use this page to check that the MySQL Schema is compatible with the definitions of the data model.".
 			"For example if you add a new field to an object, this new field must be added into the database as well.");
-	$oP->p("<b>Note:</b> the current version of the tool neither detects nor removes unused fields!");
+	$oP->p("<b>Note:</b> the current version of the tool does not remove unused fields!");
 	$oP->add("</div>");
 	$oP->add("<div id=\"content_schema\"></div>\n");
 	$oP->add_ready_script("\nCheckDBSchema();\n");
