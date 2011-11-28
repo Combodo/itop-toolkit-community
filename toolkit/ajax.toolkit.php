@@ -259,7 +259,7 @@ try
 		
 		case 'check_dictionary':
 		InitDataModel(ITOP_CONFIG_FILE, true);
-		$sDefaultCode = utils::ReadParam('lang', 'EN US');
+		$sDefaultCode = utils::ReadParam('lang', 'EN US', false, 'raw_data');
 		$sModules = utils::ReadParam('modules', 'bizmodel');
 		$aAvailableLanguages = Dict::GetLanguages();
 		echo "<select id=\"language\" name=\"language\">\n";
