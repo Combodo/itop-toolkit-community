@@ -29,7 +29,7 @@ function MakeDictEntry($sKey, $sValueFromOldSystem, $sDefaultValue, &$bNotInDico
 	return "	'$sKey' => '".str_replace("'", "\\'", $sValue)."',\n";
 }
 
-function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US', $sOutputFilter = 'NotInDictionary')
+function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 {
 	$sRes = '';
 	Dict::SetDefaultLanguage($sLanguage);
@@ -66,7 +66,7 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US', $sOutputFi
 	foreach ($aModules as $sCategory)
 	{
 		$sRes .= "//////////////////////////////////////////////////////////////////////\n";
-		$sRes .= "// Classes in '<em>$sCategory</em>'\n";
+		$sRes .= "// Classes in '$sCategory'\n";
 		$sRes .= "//////////////////////////////////////////////////////////////////////\n";
 		$sRes .= "//\n";
 		$sRes .= "\n";
@@ -86,6 +86,8 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US', $sOutputFi
 			$sClassRes .= MakeDictEntry("Class:$sClass+", MetaModel::GetClassDescription_Obsolete($sClass), '', $bNotImportant);
 			foreach(MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
 			{
+				if ($sAttCode == 'friendlyname') continue;
+				
 				// Skip this attribute if not originaly defined in this class
 				if (MetaModel::GetAttributeOrigin($sClass, $sAttCode) != $sClass) continue;
 
@@ -136,10 +138,7 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US', $sOutputFi
 			$sClassRes .= "));\n";
 			$sClassRes .= "\n";
 
-			if ($bNotInDico  || ($sOutputFilter != 'NotInDictionary'))
-			{
-				$sRes .= $sClassRes;
-			}
+			$sRes .= $sClassRes;
 		}
 	}
 	return $sRes;
@@ -259,7 +258,7 @@ try
 		
 		case 'check_dictionary':
 		InitDataModel(ITOP_CONFIG_FILE, true);
-		$sDefaultCode = utils::ReadParam('lang', 'EN US', false, 'raw_data');
+		$sDefaultCode = utils::ReadParam('lang', 'EN US');
 		$sModules = utils::ReadParam('modules', 'bizmodel');
 		$aAvailableLanguages = Dict::GetLanguages();
 		echo "<select id=\"language\" name=\"language\">\n";
