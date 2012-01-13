@@ -252,12 +252,12 @@ try
 	switch($sOperation)
 	{
 		case 'check_model':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		MetaModel::CheckDefinitions();
 		break;
 		
 		case 'check_dictionary':
-		InitDataModel(ITOP_CONFIG_FILE, true);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, true);
 		$sDefaultCode = utils::ReadParam('lang', 'EN US');
 		$sModules = utils::ReadParam('modules', 'bizmodel');
 		$aAvailableLanguages = Dict::GetLanguages();
@@ -296,7 +296,7 @@ try
 		break;
 		
 		case 'check_db_schema':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		$aAnalysis = CheckDBSchema();
 		
 		$aSQLFixes = array();
@@ -393,7 +393,7 @@ try
 		break;
 		
 		case 'check_hk':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
 		echo "</pre>\n";
@@ -409,7 +409,7 @@ try
 		
 		case 'build_hk':
 		$bForce = utils::ReadParam('force', 0);
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
 		echo "</pre>\n";
@@ -418,7 +418,7 @@ try
 		
 
 		case 'check_datasources':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
 		echo "</pre>\n";
@@ -433,7 +433,7 @@ try
 		break;
 
 		case 'fix_datasources':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		$oChange = MetaModel::NewObject("CMDBChange");
 		$oChange->Set("date", time());
 		$oChange->Set("userinfo", 'Change made via the toolkit');
@@ -445,7 +445,7 @@ try
 		break;
 
 		case 'apply_db_schema':
-		InitDataModel(ITOP_CONFIG_FILE, false);
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 		$aAnalysis = 	$aAnalysis = CheckDBSchema();
 		$aTables = utils::ReadParam('table', array());
 		$aViews = utils::ReadParam('view', array());
