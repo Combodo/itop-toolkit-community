@@ -14,6 +14,22 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+
+
+function RebuildToolkitEnvironment()
+{
+	define('TOOLKITENV', 'toolkit');
+
+	$oConfig = new Config(APPCONF.'production'.'/'.ITOP_CONFIG_FILE);
+	$oToolkitConfig = clone($oConfig);
+	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
+
+	$oEnvironment = new RunTimeEnvironment(TOOLKITENV);
+	$oEnvironment->WriteConfigFileSafe($oToolkitConfig);
+	$oEnvironment->CompileFrom('production');
+}
+
+
 function MakeDictEntry($sKey, $sValueFromOldSystem, $sDefaultValue, &$bNotInDico)
 {
 	$sValue = Dict::S($sKey, 'x-no-nothing');
@@ -172,7 +188,6 @@ function CheckDBSchema()
 		}
 	}
 	
-	
 	list($aErrors, $aSugFix) = MetaModel::DBCheckViews();
 	foreach ($aErrors as $sClass => $aTarget)
 	{
@@ -240,23 +255,30 @@ else // iTop 1.0 & 1.0.1
 	define('APPROOT', '../');
 }
 
+
 try
 {
-	//require_once(APPROOT.'/application/application.inc.php');
-	//require_once(APPROOT.'/application/startup.inc.php');
+	require_once(APPROOT."setup/runtimeenv.class.inc.php");
 	require_once(APPROOT.'/application/utils.inc.php');
+	define('ITOP_TOOLKIT_CONFIG_FILE', APPCONF.'toolkit'.'/'.ITOP_CONFIG_FILE);
+
+	$bRebuildToolkitEnv = (utils::ReadParam('rebuild_toolkit_env', '') == 'true');
+	if ($bRebuildToolkitEnv)
+	{
+		RebuildToolkitEnvironment();
+	}
 
 	$sOperation = utils::ReadParam('operation', '');
 
 	switch($sOperation)
 	{
 		case 'check_model':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 		MetaModel::CheckDefinitions();
 		break;
 		
 		case 'check_dictionary':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, true);
+		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
 		$sDefaultCode = utils::ReadParam('lang', 'EN US');
 		$sModules = utils::ReadParam('modules', 'bizmodel');
 		$aAvailableLanguages = Dict::GetLanguages();
@@ -288,121 +310,91 @@ try
 			}
 		}
 		echo "</select>\n";
-		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDictionary();\"/>\n";
+		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDictionary(true);\"/>\n";
 		echo "<textarea style=\"width:100%;height:400px;\">";
 		echo MakeDictionaryTemplate($sModules, $sDefaultCode);
 		echo "</textarea>\n";
 		break;
 		
 		case 'check_db_schema':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 		$aAnalysis = CheckDBSchema();
 		
-		$aSQLFixes = array();
-		echo "<form id=\"sql_fixes\" method=\"post\" onSubmit=\"return doApply();\">\n";
+		$aSQLFixesTables = array();
+		$aSQLFixesAll = array();
+		echo "<form id=\"update_itop_form\" method=\"post\" onSubmit=\"return doApply();\">\n";
 		foreach($aAnalysis as $sClass => $aData)
 		{
-			echo "<h2>".MetaModel::GetClassIcon($sClass)."&nbsp;Class $sClass</h2>\n";
-			echo "<ul>\n";
 			if (isset($aData['table_issues']))
 			{
-				$index = 0;
+				echo "<h2>".MetaModel::GetClassIcon($sClass)."&nbsp;Class $sClass</h2>\n";
+				echo "<ul>\n";
 				foreach($aData['table_issues'] as $sAttCode => $aIssues)
 				{
-					//echo implode('<br/>', $aIssues).'<br/>';
 					foreach($aIssues as $sText)
 					{
-						//if ($index > 0) echo "</li>\n<li>";
 						echo "<li>$sText</li>";
-						$index++;
 					}
 				}
+				echo "</ul>\n";
 			}
-			echo "</ul>\n";
 			if (isset($aData['table_fixes']))
 			{
-				//echo "<p>Suggested fix:</p>";
+				echo "<p class=\"fixes\">\n";
 				foreach($aData['table_fixes'] as $sAttCode => $aIssues)
 				{
-					$index = 0;
 					foreach($aIssues as $sSQL)
 					{
-						echo "<p class=\"sql_checkbox\"><input type=\"checkbox\" name=\"table[$sClass][$sAttCode][$index]\" checked/> $sSQL;</p/>\n";
-						$index++;
+						$sSQLEscaped = htmlentities($sSQL, ENT_QUOTES, 'UTF-8');
+						echo "<p class=\"fix-sql\">$sSQLEscaped</p>\n";
 					}
-					//echo implode('<br/>', $aIssues).'<br/>';
-					$aSQLFixes[] = implode(";\n", $aIssues);
+					$aSQLFixesTables[] = implode(";\n", $aIssues);
+					$aSQLFixesAll[] = implode(";\n", $aIssues);
 				}
-				//echo "</p></li>\n";
+				echo "</p>\n";
 			}
-			echo "<ul>\n";
-			if (isset($aData['view_issues']))
-			{
-				//echo "<li>\n";
-				$index = 0;
-				foreach($aData['view_issues'] as $sAttCode => $aIssues)
-				{
-					foreach($aIssues as $sText)
-					{
-						//if ($index > 0) echo "</li>\n<li>";
-						echo "<li>$sText</li>";
-						$index++;
-					}
-				}
-			}
-			echo "</ul>\n";
 			if (isset($aData['view_fixes']))
 			{
-				//echo "<p>Suggested fix:</p>";
 				foreach($aData['view_fixes'] as $sAttCode => $aIssues)
 				{
-					$index = 0;
-					foreach($aIssues as $sSQL)
-					{
-						echo "<p class=\"sql_checkbox\"><input type=\"checkbox\" name=\"view[$sClass][$sAttCode][$index]\" checked/> $sSQL;</p>\n";
-						$index++;
-					}
-					//echo implode('<br/>', $aIssues);
-					$aSQLFixes[] .= implode(";\n", $aIssues);
+					$aSQLFixesAll[] = implode(";\n", $aIssues);
 				}
-				//echo "</p></li>\n";
 			}
-			echo "</ul>\n";
 		}
-		if (count($aSQLFixes) == 0)
+		if (count($aSQLFixesTables) == 0)
 		{
-			echo "<p>Ok, no issue found.</p>\n";
+			echo "<p>Ok, no issue found (excepting the views).</p>\n";
 		}
 		echo "<p>&nbsp;</p>\n";
-		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDBSchema();\"/>\n";
-		if (count($aSQLFixes) > 0)
+		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
+		if (count($aSQLFixesTables) > 0)
 		{
-			echo "<input type=\"submit\" id=\"btn_sql_apply\" value=\" Apply Selected SQL commands ! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+			echo "<input type=\"submit\" id=\"btn_sql_apply\" title =\"Compile + Update DB tables and views\" value=\" Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		}
 		echo "</form>\n";
 		echo "<div id=\"content_apply_sql\"></div>\n";
 		echo "<p>&nbsp;</p>\n";
 		echo "<hr>\n";
 		echo "<h2>SQL commands to copy/paste:</h2>\n";
-		if (count($aSQLFixes) > 0)
+		if (count($aSQLFixesTables) > 0)
 		{
-			$aSQLFixes[] = '';
+			$aSQLFixesAll[] = '';
 		}
-		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L, monospaced\">".implode(";\n", $aSQLFixes)."</textarea>";
+		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L, monospaced\">".implode(";\n", $aSQLFixesAll)."</textarea>";
 		break;
 		
 		case 'check_hk':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
 		echo "</pre>\n";
 		if ($bUpdateNeeded)
 		{
-			echo "<p><button onClick=\"BuildHK(false);\">Compute HKeys</button>&nbsp;&nbsp;<button onClick=\"CheckHK();\"> Refresh </button></p>\n";
+			echo "<p><button onClick=\"BuildHK(false);\">Compute HKeys</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
 		}
 		else
 		{
-			echo "<p><button onClick=\"BuildHK(true);\">Rebuild HKeys Anyway</button>&nbsp;&nbsp;<button onClick=\"CheckHK();\"> Refresh </button></p>\n";		
+			echo "<p><button onClick=\"BuildHK(true);\">Rebuild HKeys Anyway</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";		
 		}
 		break;
 		
@@ -412,7 +404,7 @@ try
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
 		echo "</pre>\n";
-		echo "<p><button onClick=\"CheckHK();\"> Refresh </button></p>\n";
+		echo "<p><button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
 		break;
 		
 
@@ -423,11 +415,11 @@ try
 		echo "</pre>\n";
 		if ($bUpdateNeeded)
 		{
-			echo "<p><button onClick=\"FixDataSources();\">Fix Data Sources</button>&nbsp;&nbsp;<button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";
+			echo "<p><button onClick=\"FixDataSources();\">Fix Data Sources</button>&nbsp;&nbsp;<button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";
 		}
 		else
 		{
-			echo "<p><button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";		
+			echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
 		}
 		break;
 
@@ -440,16 +432,19 @@ try
 		echo "<pre>\n";
 		$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/, $oChange);
 		echo "</pre>\n";
-		echo "<p><button onClick=\"CheckDataSources();\"> Refresh </button></p>\n";		
+		echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
 		break;
 
 		case 'apply_db_schema':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-		$aAnalysis = 	$aAnalysis = CheckDBSchema();
-		$aTables = utils::ReadParam('table', array());
-		$aViews = utils::ReadParam('view', array());
 
-		echo "<p>Applying SQL commands...</p>";
+		// Compile the code into the production environment
+		echo "<p>Compiling...</p>";
+		$oEnvironment = new RunTimeEnvironment('production');
+		$oEnvironment->CompileFrom('production');
+
+		echo "<p>Updating the DB format (tables and views)...</p>";
+		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+		$aAnalysis = CheckDBSchema();
 
 		try
 		{
@@ -459,15 +454,10 @@ try
 				{
 					foreach($aData['table_fixes'] as $sAttCode => $aIssues)
 					{
-						$index = 0;
 						foreach($aIssues as $sSQL)
 						{
-							if (isset($aTables[$sClass][$sAttCode][$index]))
-							{
-								CMDBSource::Query($sSQL);
-								echo "<p class=\"sql_ok\">$sSQL;</p>\n";
-							}
-							$index++;
+							CMDBSource::Query($sSQL);
+							echo "<p class=\"sql_ok\">$sSQL;</p>\n";
 						}
 					}
 				}
@@ -479,15 +469,10 @@ try
 				{
 					foreach($aData['view_fixes'] as $sAttCode => $aIssues)
 					{
-						$index = 0;
 						foreach($aIssues as $sSQL)
 						{
-							if (isset($aViews[$sClass][$sAttCode][$index]))
-							{
-								CMDBSource::Query($sSQL);
-								echo "<p class=\"sql_ok\">$sSQL;</p>\n";
-							}
-							$index++;
+							CMDBSource::Query($sSQL);
+							echo "<p class=\"sql_ok\">$sSQL;</p>\n";
 						}
 					}
 				}
