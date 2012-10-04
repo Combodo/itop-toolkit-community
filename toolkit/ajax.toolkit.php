@@ -322,7 +322,6 @@ try
 		
 		$aSQLFixesTables = array();
 		$aSQLFixesAll = array();
-		echo "<form id=\"update_itop_form\" method=\"post\" onSubmit=\"return doApply();\">\n";
 		foreach($aAnalysis as $sClass => $aData)
 		{
 			if (isset($aData['table_issues']))
@@ -363,15 +362,15 @@ try
 		}
 		if (count($aSQLFixesTables) == 0)
 		{
-			echo "<p>Ok, no issue found (excepting the views).</p>\n";
+			echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
 		}
 		echo "<p>&nbsp;</p>\n";
 		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
 		if (count($aSQLFixesTables) > 0)
 		{
-			echo "<input type=\"submit\" id=\"btn_sql_apply\" title =\"Compile + Update DB tables and views\" value=\" Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+			echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\" Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		}
-		echo "</form>\n";
+			echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from datamodel to env-production\" value=\" Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		echo "<div id=\"content_apply_sql\"></div>\n";
 		echo "<p>&nbsp;</p>\n";
 		echo "<hr>\n";
@@ -435,7 +434,16 @@ try
 		echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
 		break;
 
-		case 'apply_db_schema':
+		case 'update_code':
+
+		// Compile the code into the production environment
+		echo "<p>Compiling...</p>";
+		$oEnvironment = new RunTimeEnvironment('production');
+		$oEnvironment->CompileFrom('production');
+		echo "<p>Done!</p>";
+		break;
+
+		case 'update_code_db':
 
 		// Compile the code into the production environment
 		echo "<p>Compiling...</p>";

@@ -181,11 +181,20 @@ try
 		return '../';
 	}
 	
-	function doApply()
+	function doApply(bFull)
 	{
-		var oMap = { operation: 'apply_db_schema' };
+		if (bFull)
+		{
+			var oMap = { operation: 'update_code_db' };
+			var bOk = confirm('Are you sure you want to compile the code and patch the database ?');
+		}
+		else
+		{
+			var oMap = { operation: 'update_code' };
+			var bOk = confirm('Are you sure you want to compile the code ?');
+		}
 		var iCount = 0;
-		var bOk = confirm('Are you sure you want to compile the code and patch the database ?');
+		
 		if (bOk)
 		{
 			$('#apply_sql_indicator').html('<img title=\"loading...\" src=\"../images/indicator.gif\" />');					
@@ -206,7 +215,6 @@ try
 					}
 			);		
 		}
-		return false; // Do NOT submit the page anyhow
 	}
 	
 	function CheckConsistency(bRefresh)
