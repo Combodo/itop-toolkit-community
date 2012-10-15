@@ -54,14 +54,14 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 	$sLocalizedDesc = $aAvailableLanguages[$sLanguage]['localized_description'];
 	
 	$sRes .= "// Dictionary conventions\n";
-	$sRes .= htmlentities("// Class:<class_name>\n");
-	$sRes .= htmlentities("// Class:<class_name>+\n");
-	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>\n");
-	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>+\n");
-	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>/Value:<value>\n");
-	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>/Value:<value>+\n");
-	$sRes .= htmlentities("// Class:<class_name>/Stimulus:<stimulus_code>\n");
-	$sRes .= htmlentities("// Class:<class_name>/Stimulus:<stimulus_code>+\n");
+	$sRes .= htmlentities("// Class:<class_name>\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>+\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>+\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>/Value:<value>\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Attribute:<attribute_code>/Value:<value>+\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Stimulus:<stimulus_code>\n", ENT_QUOTES, 'UTF-8');
+	$sRes .= htmlentities("// Class:<class_name>/Stimulus:<stimulus_code>+\n", ENT_QUOTES, 'UTF-8');
 	$sRes .= "\n";
 
 	// Note: I did not use EnumCategories(), because a given class maybe found in several categories
@@ -262,6 +262,7 @@ try
 	require_once(APPROOT.'/application/utils.inc.php');
 	define('ITOP_TOOLKIT_CONFIG_FILE', APPCONF.'toolkit'.'/'.ITOP_CONFIG_FILE);
 
+
 	$bRebuildToolkitEnv = (utils::ReadParam('rebuild_toolkit_env', '') == 'true');
 	if ($bRebuildToolkitEnv)
 	{
@@ -318,8 +319,9 @@ try
 		
 		case 'check_db_schema':
 		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+
 		$aAnalysis = CheckDBSchema();
-		
+
 		$aSQLFixesTables = array();
 		$aSQLFixesAll = array();
 		foreach($aAnalysis as $sClass => $aData)
@@ -370,7 +372,9 @@ try
 		{
 			echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\" Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		}
-			echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from datamodel to env-production\" value=\" Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+		$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
+		$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
+		echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\" Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		echo "<div id=\"content_apply_sql\"></div>\n";
 		echo "<p>&nbsp;</p>\n";
 		echo "<hr>\n";
@@ -435,7 +439,6 @@ try
 		break;
 
 		case 'update_code':
-
 		// Compile the code into the production environment
 		echo "<p>Compiling...</p>";
 		$oEnvironment = new RunTimeEnvironment('production');

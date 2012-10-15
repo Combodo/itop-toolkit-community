@@ -16,66 +16,6 @@
 
 
 
-/**
- * Build the config file from the parameters (especially the selected modules)
- * 
- * DUPLICATED FROM SETUPPAGE.CLASS.INC.PHP  
- */
-function BuildConfig(Config &$oConfig, $aParamValues, $aAvailableModules)
-{
-	// Initialize the arrays below with default values for the application...
-	$aAddOns = $oConfig->GetAddOns();
-	$aAppModules = $oConfig->GetAppModules();
-	$aDataModels = $oConfig->GetDataModels();
-	$aWebServiceCategories = $oConfig->GetWebServiceCategories();
-	$aDictionaries = $oConfig->GetDictionaries();
-	// Merge the values with the ones provided by the modules
-	// Make sure when don't load the same file twice...
-	foreach($aParamValues['module'] as $sModuleId)
-	{
-		if (isset($aAvailableModules[$sModuleId]['datamodel']))
-		{
-			$aDataModels = array_unique(array_merge($aDataModels, $aAvailableModules[$sModuleId]['datamodel']));
-		}
-		if (isset($aAvailableModules[$sModuleId]['webservice']))
-		{
-			$aWebServiceCategories = array_unique(array_merge($aWebServiceCategories, $aAvailableModules[$sModuleId]['webservice']));
-		}
-		if (isset($aAvailableModules[$sModuleId]['dictionary']))
-		{
-			$aDictionaries = array_unique(array_merge($aDictionaries, $aAvailableModules[$sModuleId]['dictionary']));
-		}
-		if (isset($aAvailableModules[$sModuleId]['settings']))
-		{
-			foreach($aAvailableModules[$sModuleId]['settings'] as $sProperty => $value)
-			{
-				list($sName, $sVersion) = self::GetModuleName($sModuleId);
-				$oConfig->SetModuleSetting($sName, $sProperty, $value);
-			}
-		}
-		if (isset($aAvailableModules[$sModuleId]['installer']))
-		{
-			$sModuleInstallerClass = $aAvailableModules[$sModuleId]['installer'];
-			if (!class_exists($sModuleInstallerClass))
-			{
-				throw new Exception("Wrong installer class: '$sModuleInstallerClass' is not a PHP class - Module: ".$aAvailableModules[$sModuleId]['label']);
-			}
-			if (!is_subclass_of($sModuleInstallerClass, 'ModuleInstallerAPI'))
-			{
-				throw new Exception("Wrong installer class: '$sModuleInstallerClass' is not derived from 'ModuleInstallerAPI' - Module: ".$aAvailableModules[$sModuleId]['label']);
-			}
-			$aCallSpec = array($sModuleInstallerClass, 'BeforeWritingConfig');
-			//$oConfig = call_user_func_array($aCallSpec, array($oConfig));
-		}
-	}
-	$oConfig->SetAddOns($aAddOns);
-	$oConfig->SetAppModules($aAppModules);
-	$oConfig->SetDataModels($aDataModels);
-	$oConfig->SetWebServiceCategories($aWebServiceCategories);
-	$oConfig->SetDictionaries($aDictionaries);
-}
-
-
 
 /**
  * Check the consistency
@@ -163,10 +103,7 @@ if (!file_exists(ITOP_DEFAULT_CONFIG_FILE))
 	exit;
 }
 
-
 require_once(APPROOT.'/application/startup.inc.php');
-
-$sOperation = utils::ReadParam('operation', 'step1');
 
 $oP = new NiceWebPage('Data Model Toolkit');
 $oP->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'toolkit/toolkit.css');
@@ -373,6 +310,12 @@ EOF
 	// The environment will be rebuilt in case of refresh (if refreshing a view relying on this environment)
 	//
 	$oConfig = new Config(APPCONF.'production/'.ITOP_CONFIG_FILE);
+	if ($oConfig->Get('source_dir') == '')
+	{
+		throw new Exception('Missing entry source_dir from the config file');
+	}
+
+
 	$oToolkitConfig = clone($oConfig);
 	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
 
