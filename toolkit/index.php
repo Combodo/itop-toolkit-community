@@ -132,6 +132,11 @@ try
 			var oMap = { operation: 'update_code' };
 			var bOk = confirm('Are you sure you want to compile the code ?');
 		}
+		var oUseSymlinks = $('#symlink:checked');
+		if (oUseSymlinks.length > 0)
+		{
+			oMap.symlink = 1;
+		}
 		var iCount = 0;
 		
 		if (bOk)

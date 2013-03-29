@@ -369,6 +369,10 @@ try
 			echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
 		}
 		echo "<p>&nbsp;</p>\n";
+		if (function_exists('symlink'))
+		{
+			echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
+		}
 		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
 		if (count($aSQLFixesTables) > 0)
 		{
@@ -443,8 +447,9 @@ try
 		case 'update_code':
 		// Compile the code into the production environment
 		echo "<p>Compiling...</p>";
+		$bUseSymlinks = utils::ReadParam('symlink', false);
 		$oEnvironment = new RunTimeEnvironment('production');
-		$oEnvironment->CompileFrom('production');
+		$oEnvironment->CompileFrom('production', $bUseSymlinks);
 		echo "<p>Done!</p>";
 		break;
 
@@ -452,8 +457,9 @@ try
 
 		// Compile the code into the production environment
 		echo "<p>Compiling...</p>";
+		$bUseSymlinks = utils::ReadParam('symlink', false);
 		$oEnvironment = new RunTimeEnvironment('production');
-		$oEnvironment->CompileFrom('production');
+		$oEnvironment->CompileFrom('production', $bUseSymlinks);
 
 		echo "<p>Updating the DB format (tables and views)...</p>";
 		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
