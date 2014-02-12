@@ -25,6 +25,11 @@ function RebuildToolkitEnvironment()
 	$oConfig = new Config(APPCONF.'production'.'/'.ITOP_CONFIG_FILE);
 	$oToolkitConfig = clone($oConfig);
 	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
+	
+	if (file_exists(APPROOT.'data/production.delta.xml'))
+	{
+		copy(APPROOT.'data/production.delta.xml', APPROOT.'data/toolkit.delta.xml');
+	}
 
 	$oEnvironment = new RunTimeEnvironment(TOOLKITENV);
 	$oEnvironment->WriteConfigFileSafe($oToolkitConfig);
