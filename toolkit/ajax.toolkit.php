@@ -236,7 +236,16 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
 	require_once(APPROOT.'/core/cmdbsource.class.inc.php');
 	require_once(APPROOT.'/core/sqlquery.class.inc.php');
 	require_once(APPROOT.'/core/dbobject.class.php');
-	require_once(APPROOT.'/core/dbsearch.class.php');
+	if (file_exists(APPROOT.'/core/dbsearch.class.php'))
+	{
+		// iTop 2.2.0 or newer
+		require_once(APPROOT.'/core/dbsearch.class.php');
+	}
+	else
+	{
+		// Pre 2.2
+		require_once(APPROOT.'/core/dbobjectsearch.class.php');
+	}
 	require_once(APPROOT.'/core/dbobjectset.class.php');
 	require_once(APPROOT.'/application/cmdbabstract.class.inc.php');
 	require_once(APPROOT.'/core/userrights.class.inc.php');
