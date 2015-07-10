@@ -236,7 +236,7 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
 	require_once(APPROOT.'/core/cmdbsource.class.inc.php');
 	require_once(APPROOT.'/core/sqlquery.class.inc.php');
 	require_once(APPROOT.'/core/dbobject.class.php');
-	require_once(APPROOT.'/core/dbobjectsearch.class.php');
+	require_once(APPROOT.'/core/dbsearch.class.php');
 	require_once(APPROOT.'/core/dbobjectset.class.php');
 	require_once(APPROOT.'/application/cmdbabstract.class.inc.php');
 	require_once(APPROOT.'/core/userrights.class.inc.php');
