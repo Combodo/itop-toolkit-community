@@ -30,7 +30,16 @@ function RebuildToolkitEnvironment()
 	{
 		copy(APPROOT.'data/production.delta.xml', APPROOT.'data/toolkit.delta.xml');
 	}
-
+	if (is_dir(APPROOT.'data/toolkit-modules'))
+	{
+		// Cleanup before copying
+		SetupUtils::rrmdir(APPROOT.'data/toolkit-modules');
+	}
+	if (is_dir(APPROOT.'data/production-modules'))
+	{
+		SetupUtils::copydir(APPROOT.'data/production-modules', APPROOT.'data/toolkit-modules');
+	}
+	
 	$oEnvironment = new RunTimeEnvironment(TOOLKITENV);
 	$oEnvironment->WriteConfigFileSafe($oToolkitConfig);
 	$oEnvironment->CompileFrom('production');
