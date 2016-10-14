@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2011-2012 Combodo SARL
+// Copyright (C) 2011-2016 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -16,12 +16,11 @@
 //   You should have received a copy of the GNU Affero General Public License
 //   along with iTop. If not, see <http://www.gnu.org/licenses/>
 
+define('TOOLKITENV', 'toolkit');
 
 
 function RebuildToolkitEnvironment()
 {
-	define('TOOLKITENV', 'toolkit');
-
 	$oConfig = new Config(APPCONF.'production'.'/'.ITOP_CONFIG_FILE);
 	$oToolkitConfig = clone($oConfig);
 	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
@@ -261,7 +260,7 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
 	require_once(APPROOT.'/setup/moduleinstallation.class.inc.php');
 
 	MetaModel::ResetCache();
-	MetaModel::Startup($sConfigFileName, $bModelOnly, false /* allow cache */);
+	MetaModel::Startup($sConfigFileName, $bModelOnly, false /* allow cache */, false /* $bTraceSourceFiles */, TOOLKITENV);
 }
 
 
@@ -285,7 +284,7 @@ try
 {
 	require_once(APPROOT."setup/runtimeenv.class.inc.php");
 	require_once(APPROOT.'/application/utils.inc.php');
-	define('ITOP_TOOLKIT_CONFIG_FILE', APPCONF.'toolkit'.'/'.ITOP_CONFIG_FILE);
+	define('ITOP_TOOLKIT_CONFIG_FILE', APPCONF.TOOLKITENV.'/'.ITOP_CONFIG_FILE);
 
 
 	$bRebuildToolkitEnv = (utils::ReadParam('rebuild_toolkit_env', '') == 'true');
