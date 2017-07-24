@@ -141,7 +141,12 @@ try
 		
 		if (bOk)
 		{
-			$('#apply_sql_indicator').html('<img title=\"loading...\" src=\"../images/indicator.gif\" />');					
+			var sTitleLoadingPrefix = '/!\\\\ - ';
+			var sOriginalTitle = document.title;
+			
+			$('#apply_sql_indicator').html('<img title=\"loading...\" src=\"../images/indicator.gif\" />');
+			document.title = sTitleLoadingPrefix + sOriginalTitle;
+			
 			ajax_request = $.post(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', oMap,
 					function(data)
 					{
@@ -154,8 +159,10 @@ try
 						{
 							$('#content_apply_sql').append(data);
 						}
-						$('#content_apply_sql').slideDown('slow');					
-						$('#apply_sql_indicator').html('');					
+						$('#content_apply_sql').slideDown('slow');
+											
+						$('#apply_sql_indicator').html('');
+						document.title = sOriginalTitle;
 					}
 			);		
 		}
