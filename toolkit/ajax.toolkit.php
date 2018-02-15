@@ -175,6 +175,16 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 	return $sRes;
 }
 
+/**
+ * Build a zip file containing dictionary files for the $sLangName language.
+ * Note: The zip is made from english translations without checking if there are any existing dictionary entries for $sLangCode.
+ *
+ * @param string $sLangCode
+ * @param string $sLangName
+ * @param string $sLangLocName
+ *
+ * @throws \Exception
+ */
 function BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName)
 {
 	// Prepare lang prefix
@@ -239,6 +249,17 @@ function BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName)
 	echo "<div>Translation files package is available under /data/$sZipName</div>";
 }
 
+/**
+ * Create $sDestFile by duplicating $sSourceFile, replacing the language meta data with $sLangCode / $sLangName / $sLangLocName and adding "~~" at the end of all translations and
+ *
+ * @param string $sLangCode
+ * @param string $sLangName
+ * @param string $sLangLocName
+ * @param string $sSourceFile
+ * @param string $sDestFile
+ *
+ * @return bool
+ */
 function MakeDictionaryFile($sLangCode, $sLangName, $sLangLocName, $sSourceFile, $sDestFile)
 {
 	$sDestFileContent = "";
