@@ -71,11 +71,48 @@ function CheckDataIntegrity($oP)
  */
 function CheckDictionary($oP)
 {
+	$oP->add("<!-- tabs -->\n<div id=\"tabbedContent-dict\" class=\"tabbedContent\" class=\"light\">\n");
+	$oP->add("<ul>\n");
+	$oP->add("<li><a href=\"#tab_dict_0\" class=\"tab\"><span>Complete existing language</span></a></li>\n");
+	$oP->add("<li><a href=\"#tab_dict_1\" class=\"tab\"><span>Prepare new language</span></a></li>\n");
+	$oP->add("</ul>\n");
+
+	$oP->add("<div id=\"tab_dict_0\">");
 	$oP->add("<div class=\"info\">");
 	$oP->p("This page lists all the missing items in the 'dictionary' which is used for the display and localization in iTop. To fix the issues, edit the output below and paste it into the appropriate dictionary.php file.");
 	$oP->add("</div>");
 	$oP->add("<div id=\"content_dictionary\"></div>\n");
 	$oP->add_ready_script("\nCheckDictionary(false);\n");
+	$oP->add("</div>\n");
+
+	$oP->add("<div id=\"tab_dict_1\">");
+	$oP->add("<div class=\"info\">");
+	$oP->p("Here you can prepare a zip file containing all dictionary files for a new language. They will be filled with english translations appended with \"~~\" to easily find what remains for translation.");
+	$oP->add("</div>");
+	$oP->add(
+<<<EOF
+	<div>
+		<form id="prepare_new_dictionary">
+			<p><label><span>Language code:</span><input type="text" id="language_code" name="language_code" placeholder="eg. FR FR"/></label></p>
+			<p><label><span>Language english name:</span><input type="text" id="language_name" name="language_name" placeholder="eg. French"/></label></p>
+			<p><label><span>Language localized name:</span><input type="text" id="language_localized_name" name="language_localized_name" placeholder="eg. Français"/></label></p>
+			<p><button type="submit" name="submit">Generate</button></p>
+		</form>
+	</div>
+EOF
+	);
+	$oP->add("<div id=\"content_new_dictionary\"></div>\n");
+	$oP->add_ready_script("\n$('#prepare_new_dictionary button[type=\"submit\"]').click(function(oEvent){ oEvent.preventDefault(); PrepareNewDictionary(false); });\n");
+	$oP->add("</div>\n");
+
+	$oP->add("</div>\n<!-- end of tabs-->\n");
+	$oP->add_ready_script(
+<<<EOF
+	// Same stuff as for the main tabs (see below)
+	var dictTabs = $('#tabbedContent-dict');	
+	dictTabs.tabs();
+EOF
+	);
 }
 
 
@@ -310,6 +347,29 @@ try
 				{
 					$('#content_dictionary').empty();
 					$('#content_dictionary').append(data);
+				}
+		);		
+	}
+	
+	function PrepareNewDictionary(bRefresh)
+	{
+		var oForm = ('#prepare_new_dictionary');
+		var sLangCode = $('#language_code').val();
+		var sLangName = $('#language_name').val();
+		var sLangLocName = $('#language_localized_name').val();
+		
+		if(sLangCode === '' || sLangName === '' || sLangLocName === '')
+		{
+			alert('Please fill all fields');
+			return false;
+		}
+		
+		$('#content_new_dictionary').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Preparing dictionary files for "'+sLangName+'"');
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'prepare_new_dictionary', 'rebuild_toolkit_env': bRefresh, 'lang_code': sLangCode, 'lang_name': sLangName, 'lang_loc_name': sLangLocName },
+				function(data)
+				{
+					$('#content_new_dictionary').empty();
+					$('#content_new_dictionary').append(data);
 				}
 		);		
 	}

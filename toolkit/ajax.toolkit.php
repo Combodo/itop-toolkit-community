@@ -175,6 +175,112 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 	return $sRes;
 }
 
+function BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName)
+{
+	// Prepare lang prefix
+	$aLangCodeParts = explode(' ', $sLangCode);
+	$sLangPrefix = strtolower($aLangCodeParts[0]);
+	if($aLangCodeParts[0] !== $aLangCodeParts[1])
+	{
+		$sLangPrefix .= '_'.strtolower($aLangCodeParts[1]);
+	}
+
+	// Working directory
+	$sWorkingFolder = APPROOT.'data/tmp-dict-folder/';
+	SetupUtils::builddir($sWorkingFolder);
+
+	// Prepare zip file
+	$sZipPath = APPROOT.'data/';
+	$sZipTime = date('Y.m.d.H.i.s');
+	$sZipName = 'iTop-'.ITOP_VERSION.'-'.$sLangPrefix.'-translation-files-'.$sZipTime.'.zip';
+	$sZipFilePath = $sZipPath.$sZipName;
+
+	if(!class_exists('ZipArchive'))
+	{
+		throw new Exception('ZipArchive class not found!');
+	}
+
+	$oZip = new ZipArchive();
+	$oZip->open($sZipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+	// Remove current files from working dir if any
+	IssueLog::Info($sWorkingFolder.$sLangPrefix.'.dict*.php');
+	foreach(glob($sWorkingFolder.$sLangPrefix.'.dict*.php') as $sExistingFile)
+	{
+		@unlink($sExistingFile);
+	}
+
+	// Process application dictionary files
+	foreach(glob(APPROOT.'dictionaries/en.*.php') as $sSourceFile)
+	{
+		$sDestFile = $sWorkingFolder.$sLangPrefix.substr($sSourceFile, strrpos($sSourceFile, '/', -1) + 3);
+		MakeDictionaryFile($sLangCode, $sLangName, $sLangLocName, $sSourceFile, $sDestFile);
+	}
+
+	// Process extensions dictionary files
+	foreach(glob(APPROOT.'datamodels/*/*/en.*.php') as $sSourceFile)
+	{
+		$sDestFile = $sWorkingFolder.$sLangPrefix.substr($sSourceFile, strrpos($sSourceFile, '/', -1) + 3);
+		MakeDictionaryFile($sLangCode, $sLangName, $sLangLocName, $sSourceFile, $sDestFile);
+	}
+
+	// Making zip file
+	foreach(glob($sWorkingFolder.$sLangPrefix.'.dict*.php') as $sProcessedFile)
+	{
+		$sProcessedFileName = substr($sProcessedFile, strrpos($sProcessedFile, '/', -1) +1);
+		$oZip->addFile($sProcessedFile, $sProcessedFileName);
+	}
+	$oZip->close();
+
+	// Remove working dir
+	SetupUtils::rrmdir($sWorkingFolder);
+
+	// Display download link
+	echo "<div>Translation files package is available under /data/$sZipName</div>";
+}
+
+function MakeDictionaryFile($sLangCode, $sLangName, $sLangLocName, $sSourceFile, $sDestFile)
+{
+	$sDestFileContent = "";
+
+	try
+	{
+		$oSourceHandle = fopen($sSourceFile, 'r+');
+		if($oSourceHandle)
+		{
+			while( ($sLine = fgets($oSourceHandle)) !== false )
+			{
+				$sNewLine = null;
+
+				// Look only for entries
+				$aTmpMatches = array();
+				if(preg_match("/Dict::Add\('(.*)',\ ?'(.*)',\ ?'(.*)',\ ?array\(/", $sLine, $aTmpMatches) === 1)
+				{
+					$sNewLine = "Dict::Add('{$sLangCode}', '{$sLangName}', '{$sLangLocName}', array(\n";
+				}
+				elseif(preg_match("/'(.*)'\ ?=>\ ?'(.*)',/", $sLine, $aTmpMatches) === 1)
+				{
+					$sNewLine = "\t'".$aTmpMatches[1]."' => '".$aTmpMatches[2]."~~',\n";
+				}
+				else
+				{
+					$sNewLine = $sLine;
+				}
+
+				$sDestFileContent .= $sNewLine;
+			}
+		}
+	}
+	catch(Exception $e)
+	{
+		echo "<p>Could not make dictionary file for ".$sSourceFile.", it will not be included in the zip file (Cause: ".$e->getMessage().")</p>";
+		return false;
+	}
+
+	file_put_contents($sDestFile, $sDestFileContent);
+	return true;
+}
+
 function CheckDBSchema()
 {
 	$aAnalysis = array();
@@ -339,6 +445,22 @@ try
 		echo "<textarea style=\"width:100%;height:400px;\">";
 		echo MakeDictionaryTemplate($sModules, $sDefaultCode);
 		echo "</textarea>\n";
+		break;
+
+		case 'prepare_new_dictionary':
+			InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
+			$sLangCode = trim(utils::ReadParam('lang_code', ''));
+			$sLangName = trim(utils::ReadParam('lang_name', ''));
+			$sLangLocName = trim(utils::ReadParam('lang_loc_name', ''));
+			if(empty($sLangCode) || empty($sLangName) || empty($sLangLocName))
+			{
+				echo "Please fill all fields.";
+
+			}
+			else
+			{
+				BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName);
+			}
 		break;
 		
 		case 'check_db_schema':

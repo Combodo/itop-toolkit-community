@@ -42,3 +42,12 @@ h3 {
 	width: 95%;
 	-moz-border-radius: 0.5em;	
 }
+
+form label span{
+	display: inline-block;
+	width: 190px;
+}
+form label input{
+	margin-left: 10px;
+	padding: 2px;
+}
