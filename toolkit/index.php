@@ -88,6 +88,7 @@ function CheckDictionary($oP)
 	$oP->add("<div id=\"tab_dict_1\">");
 	$oP->add("<div class=\"info\">");
 	$oP->p("Here you can prepare a zip file containing all dictionary files for a new language. They will be filled with english translations appended with \"~~\" to easily find what remains for translation.");
+	$oP->p("Check localization guidelines <a href=\"https://wiki.openitop.org/doku.php?id=2_2_0:customization:start#localization\" target=\"_blank\">see here</a>.");
 	$oP->add("</div>");
 	$oP->add(
 <<<EOF
