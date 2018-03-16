@@ -470,9 +470,9 @@ try
 
 		case 'prepare_new_dictionary':
 			InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
-			$sLangCode = trim(utils::ReadParam('lang_code', ''));
-			$sLangName = trim(utils::ReadParam('lang_name', ''));
-			$sLangLocName = trim(utils::ReadParam('lang_loc_name', ''));
+			$sLangCode = trim(utils::ReadParam('lang_code', '', false, 'raw'));
+			$sLangName = trim(utils::ReadParam('lang_name', '', false, 'raw'));
+			$sLangLocName = trim(utils::ReadParam('lang_loc_name', '', false, 'raw'));
 			if(empty($sLangCode) || empty($sLangName) || empty($sLangLocName))
 			{
 				echo "Please fill all fields.";
