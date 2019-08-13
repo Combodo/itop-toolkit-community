@@ -122,15 +122,21 @@ EOF
 // Main
 ////////////////////////////////////////////////////////////////////////////////
 
-if (file_exists('../approot.inc.php'))
+if (file_exists('../bootstrap.inc.php'))
 {
-	// iTop 1.0.2
+	// iTop 2.7.0+
+	include('../bootstrap.inc.php');
+}
+elseif (file_exists('../approot.inc.php'))
+{
+	// iTop 1.0.2+
 	include('../approot.inc.php');
 }
 else // iTop 1.0 & 1.0.1
 {
 	define('APPROOT', '../');
 }
+
 require_once(APPROOT."/application/applicationcontext.class.inc.php");
 require_once(APPROOT.'application/nicewebpage.class.inc.php');
 require_once(APPROOT.'application/utils.inc.php');
