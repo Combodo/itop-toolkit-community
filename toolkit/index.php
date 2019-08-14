@@ -125,14 +125,19 @@ EOF
 
 if (file_exists('../approot.inc.php'))
 {
-	// iTop 1.0.2
+	// iTop 1.0.2+
 	include('../approot.inc.php');
 }
 else // iTop 1.0 & 1.0.1
 {
 	define('APPROOT', '../');
 }
-require_once(APPROOT.'/bootstrap.inc.php');
+
+// iTop 2.7.0+
+if (file_exists(APPROOT.'/bootstrap.inc.php'))
+{
+	require_once(APPROOT.'/bootstrap.inc.php');
+}
 require_once(APPROOT."/application/applicationcontext.class.inc.php");
 require_once(APPROOT.'application/nicewebpage.class.inc.php');
 require_once(APPROOT.'application/utils.inc.php');
