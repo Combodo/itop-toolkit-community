@@ -18,7 +18,18 @@
  */
 
 
-
+/**
+ * Welcome the user
+ */
+function DisplayIndex($oP)
+{
+	$oP->add("<div class=\"info\">");
+	$oP->p("Welcome, use this toolkit in order to assist you in your iTop customization.");
+	$oP->p("Please keep in mind that this is a developer tool that must never be hosted on your production server.");
+	$oP->p("");
+	$oP->p("Please read carefully <a target='_blank' href='https://www.itophub.io/wiki/page?id=latest%3Acustomization%3Adatamodel&s%5B0%5D=toolkit#using_the_toolkit'>the documentation</a> prior any use!");
+	$oP->add("</div>");
+}
 
 /**
  * Check the consistency
@@ -29,8 +40,7 @@ function CheckConsistency($oP)
 	$oP->p("Use this page to validate any modification made to the PHP classes that define the 'data model'.");
 	$oP->p("It is advisable to fix any error detected at this stage before applying changes from the itop update tab.");
 	$oP->add("</div>");
-	$oP->add("<div id=\"content_php\"></div>\n");
-	$oP->add_ready_script("\nCheckConsistency(false);\n");
+	$oP->add("<div id=\"content_php\"><button onclick='CheckConsistency(true);'>Check Consistency</button></div>\n");
 }
 
 /**
@@ -43,8 +53,17 @@ function CheckDBSchema($oP)
 			" For example if you add a new field to an object, this new field must be added into the database as well.");
 	$oP->p("<b>Note:</b> the current version of the tool does not remove unused fields!");
 	$oP->add("</div>");
-	$oP->add("<div id=\"content_schema\"></div>\n");
-	$oP->add_ready_script("\nCheckDBSchema(false);\n");
+	$oP->add("<div id=\"content_schema\">
+		<button onclick='CheckDBSchema(true);'>Check DB Schema</button>
+		<hr />");
+		if (function_exists('symlink'))
+		{
+			$oP->add("<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n");
+		}
+		$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
+		$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
+		$oP->add("<button  onclick=\"doApply(false);\" title=\"Compile from $sSourceDirHtml to env-production\">Update iTop code</button>&nbsp;<span id=\"apply_sql_indicator\"></span>\n");
+	$oP->add("<div id=\"content_apply_sql\"></div>\n</div>\n");
 }
 
 /**
@@ -58,13 +77,13 @@ function CheckDataIntegrity($oP)
 	
 	$oP->add("<h2>Synchronization Data Sources</h2>");
 	$oP->add("<div id=\"content_datasources\">");
+	$oP->add("<button onclick='CheckDataSources(true);'>Check Data Sources</button>");
 	$oP->add("</div>\n");
-	$oP->add_ready_script("\nCheckDataSources(false);\n");
-	
+
 	$oP->add("<h2>Hierarchical Keys</h2>");
 	$oP->add("<div id=\"content_hk\">\n");
+	$oP->add("<button onclick='CheckHK(true);'>Check Hierarchical Keys</button>");
 	$oP->add("</div>\n");
-	$oP->add_ready_script("\nCheckHK(false);\n");
 }
 
 /**
@@ -82,8 +101,7 @@ function CheckDictionary($oP)
 	$oP->add("<div class=\"info\">");
 	$oP->p("This page lists all the missing items in the 'dictionary' which is used for the display and localization in iTop. To fix the issues, edit the output below and paste it into the appropriate dictionary.php file.");
 	$oP->add("</div>");
-	$oP->add("<div id=\"content_dictionary\"></div>\n");
-	$oP->add_ready_script("\nCheckDictionary(false);\n");
+	$oP->add("<div id=\"content_dictionary\"><button onclick='CheckDictionary(true);'>Check Dictionary</button></div>\n");
 	$oP->add("</div>\n");
 
 	$oP->add("<div id=\"tab_dict_1\">");
@@ -104,7 +122,7 @@ function CheckDictionary($oP)
 EOF
 	);
 	$oP->add("<div id=\"content_new_dictionary\"></div>\n");
-	$oP->add_ready_script("\n$('#prepare_new_dictionary button[type=\"submit\"]').click(function(oEvent){ oEvent.preventDefault(); PrepareNewDictionary(false); });\n");
+	$oP->add_ready_script("\n$('#prepare_new_dictionary button[type=\"submit\"]').click(function(oEvent){ oEvent.preventDefault(); PrepareNewDictionary(true); });\n");
 	$oP->add("</div>\n");
 
 	$oP->add("</div>\n<!-- end of tabs-->\n");
@@ -159,7 +177,7 @@ try
 {
 	//$sAppRoot = utils::GetAbsoluteUrlAppRoot();
 	$oP->add_script(
-<<<EOF
+<<<JS
 	function GetAbsoluteUrlAppRoot()
 	{
 		return '../';
@@ -199,10 +217,12 @@ try
 						if (data == '')
 						{
 							$('#content_apply_sql').append('Nothing done !');
+							notifyMe('Nothing done !')
 						}
 						else
 						{
 							$('#content_apply_sql').append(data);
+							notifyMe('Update finished')
 						}
 						$('#content_apply_sql').slideDown('slow');
 											
@@ -212,6 +232,25 @@ try
 			);		
 		}
 	}
+	
+	function notifyMe(notificationStr) {
+	  if (!("Notification" in window)) {
+	    return;
+	  } else if (Notification.permission === "granted") {
+	    var notification = new Notification(notificationStr);
+	  } else if (Notification.permission !== 'denied') {
+	    Notification.requestPermission(function (permission) {
+	
+	      if(!('permission' in Notification)) {
+	        Notification.permission = permission;
+	      }
+	
+	      if (permission === "granted") {
+	        var notification = new Notification(notificationStr);
+	      }
+	    });
+  }
+}
 	
 	function CheckConsistency(bRefresh)
 	{
@@ -381,37 +420,32 @@ try
 				}
 		);		
 	}
-EOF
+JS
 );
 
 	$oP->add("<h1>Data Model Toolkit</h1>\n");
 
 	define('TOOLKITENV', 'toolkit');
 
-	// Compile the current code into the environment 'toolkit'
-	// The environment will be rebuilt in case of refresh (if refreshing a view relying on this environment)
-	//
 	$oConfig = new Config(APPCONF.'production/'.ITOP_CONFIG_FILE);
 	if ($oConfig->Get('source_dir') == '')
 	{
 		throw new Exception('Missing entry source_dir from the config file');
 	}
 
-
-	$oToolkitConfig = clone($oConfig);
-	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
-
-	$oEnvironment = new RunTimeEnvironment(TOOLKITENV);
-	$oEnvironment->WriteConfigFileSafe($oToolkitConfig);
-	$oEnvironment->CompileFrom('production');
-
 	$oP->add("<!-- tabs -->\n<div id=\"tabbedContent\" class=\"light\">\n");
 	$oP->add("<ul>\n");
+	$oP->add("<li><a href=\"#tab_index\" class=\"tab\"><span>Index</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_0\" class=\"tab\"><span>Data Model Consistency</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_1\" class=\"tab\"><span>iTop update</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_2\" class=\"tab\"><span>Data Integrity</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_3\" class=\"tab\"><span>Translations / Dictionnary</span></a></li>\n");
 	$oP->add("</ul>\n");
+
+	$oP->add("<div id=\"tab_index\">");
+	DisplayIndex($oP);
+	$oP->add("</div>\n");
+
 	$oP->add("<div id=\"tab_0\">");
 	CheckConsistency($oP);
 	$oP->add("</div>\n");
@@ -430,7 +464,7 @@ EOF
 	
 	$oP->add("</div>\n<!-- end of tabs-->\n");
 	$oP->add_ready_script(
-<<<EOF
+<<<JS
 	// Tabs, using JQuery BBQ to store the history
 	// The "tab widgets" to handle.
 	var tabs = $('#tabbedContent');
@@ -454,7 +488,7 @@ EOF
 	// specified. Note that if you define a callback for the 'select' event, it
 	// will be executed for the selected tab whenever the hash changes.
 	tabs.tabs();
-EOF
+JS
 	);
 }
 catch(Exception $e)
