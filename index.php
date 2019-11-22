@@ -54,7 +54,7 @@ function CheckDBSchema($oP)
 	$oP->p("<b>Note:</b> the current version of the tool does not remove unused fields!");
 	$oP->add("</div>");
 	$oP->add("<div id=\"content_schema\">
-		<button onclick='CheckDBSchema(true);'>Check DB Schema</button>
+		<button onclick='CheckDBSchema(true);'>📀 Check DB Schema</button>
 		<hr />");
 		if (function_exists('symlink'))
 		{
@@ -62,7 +62,7 @@ function CheckDBSchema($oP)
 		}
 		$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
 		$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
-		$oP->add("<button  onclick=\"doApply(false);\" title=\"Compile from $sSourceDirHtml to env-production\">Update iTop code</button>&nbsp;<span id=\"apply_sql_indicator\"></span>\n");
+	$oP->add("<button  onclick=\"doApply(false);\" title=\"Compile from $sSourceDirHtml to env-production\">📄 Update iTop code</button>&nbsp;<span id=\"apply_sql_indicator\"></span>\n");
 	$oP->add("<div id=\"content_apply_sql\"></div>\n</div>\n");
 }
 
@@ -101,7 +101,7 @@ function CheckDictionary($oP)
 	$oP->add("<div class=\"info\">");
 	$oP->p("This page lists all the missing items in the 'dictionary' which is used for the display and localization in iTop. To fix the issues, edit the output below and paste it into the appropriate dictionary.php file.");
 	$oP->add("</div>");
-	$oP->add("<div id=\"content_dictionary\"><button onclick='CheckDictionary(true);'>Check Dictionary</button></div>\n");
+	$oP->add("<div id=\"content_dictionary\"><button onclick='CheckDictionary(true);'>🌐 Check Dictionary</button></div>\n");
 	$oP->add("</div>\n");
 
 	$oP->add("<div id=\"tab_dict_1\">");

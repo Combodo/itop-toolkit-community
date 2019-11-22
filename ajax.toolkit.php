@@ -468,7 +468,7 @@ try
 			}
 		}
 		echo "</select>\n";
-		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDictionary(true);\"/>\n";
+			echo "<input type=\"button\" value=\"♻️ Refresh\" onclick=\"CheckDictionary(true);\"/>\n";
 		echo "<textarea style=\"width:100%;height:400px;\">";
 		echo MakeDictionaryTemplate($sModules, $sDefaultCode);
 		echo "</textarea>\n";
@@ -544,14 +544,14 @@ try
 		{
 			echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
 		}
-		echo "<input type=\"button\" value=\" Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
+			echo "<input type=\"button\" value=\"♻️ Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
 		if (count($aSQLFixesTables) > 0)
 		{
-			echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\" Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+			echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		}
 		$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
 		$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
-		echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\" Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+			echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\"📄 Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 		echo "<div id=\"content_apply_sql\"></div>\n";
 		echo "<p>&nbsp;</p>\n";
 		echo "<hr>\n";
