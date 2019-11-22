@@ -407,12 +407,6 @@ else // iTop 1.0 & 1.0.1
 	define('APPROOT', '../');
 }
 
-// iTop 2.7.0+
-if (file_exists(APPROOT.'/bootstrap.inc.php'))
-{
-	require_once(APPROOT.'/bootstrap.inc.php');
-}
-
 try
 {
 	require_once(APPROOT."setup/runtimeenv.class.inc.php");
