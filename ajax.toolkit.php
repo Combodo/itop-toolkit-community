@@ -616,12 +616,13 @@ try
 		break;
 
 		case 'update_code':
-		// Compile the code into the production environment
-		echo "<p>Compiling...</p>";
-		$bUseSymlinks = utils::ReadParam('symlink', false);
-		$oEnvironment = new RunTimeEnvironment('production');
-		$oEnvironment->CompileFrom('production', $bUseSymlinks);
-		echo "<p>Done!</p>";
+			// Compile the code into the production environment
+			echo "<p>Compiling...</p>";
+			$bUseSymlinks = utils::ReadParam('symlink', false);
+			$oEnvironment = new RunTimeEnvironment('production');
+			$oEnvironment->CompileFrom('production', $bUseSymlinks);
+			$datetime = date("Y-m-d H:i:s");
+			echo "<p>Done! ($datetime)</p>";
 		break;
 
 		case 'update_code_db':
