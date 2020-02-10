@@ -330,27 +330,30 @@ function CheckDBSchema()
 			}
 		}
 	}
-	
-	list($aErrors, $aSugFix) = MetaModel::DBCheckViews();
-	foreach ($aErrors as $sClass => $aTarget)
+
+	if (defined(ITOP_VERSION) && version_compare(ITOP_VERSION, '2.7.0') < 0)
 	{
-		foreach ($aTarget as $sAttCode => $aIssues)
+		list($aErrors, $aSugFix) = MetaModel::DBCheckViews();
+		foreach ($aErrors as $sClass => $aTarget)
 		{
-			foreach ($aIssues as $sIssue)
+			foreach ($aTarget as $sAttCode => $aIssues)
 			{
-				$aAnalysis[$sClass]['view_issues'][$sAttCode][] = $sIssue;
+				foreach ($aIssues as $sIssue)
+				{
+					$aAnalysis[$sClass]['view_issues'][$sAttCode][] = $sIssue;
+				}
 			}
 		}
-	}
-	foreach ($aSugFix as $sClass => $aTarget)
-	{
-		foreach ($aTarget as $sAttCode => $aQueries)
+		foreach ($aSugFix as $sClass => $aTarget)
 		{
-			foreach ($aQueries as $sQuery)
+			foreach ($aTarget as $sAttCode => $aQueries)
 			{
-				if (!empty($sQuery))
+				foreach ($aQueries as $sQuery)
 				{
-					$aAnalysis[$sClass]['view_fixes'][$sAttCode][] = $sQuery;
+					if (!empty($sQuery))
+					{
+						$aAnalysis[$sClass]['view_fixes'][$sAttCode][] = $sQuery;
+					}
 				}
 			}
 		}
@@ -405,6 +408,12 @@ if (file_exists('../approot.inc.php'))
 else // iTop 1.0 & 1.0.1
 {
 	define('APPROOT', '../');
+}
+
+// iTop 2.7.0+
+if (file_exists(APPROOT.'/bootstrap.inc.php'))
+{
+	require_once(APPROOT.'/bootstrap.inc.php');
 }
 
 try
@@ -485,9 +494,12 @@ try
 		break;
 		
 		case 'check_db_schema':
+		$sCurrEnv = $_SESSION['itop_env'];
+		$_SESSION['itop_env'] = TOOLKITENV;
 		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 
 		$aAnalysis = CheckDBSchema();
+		$_SESSION['itop_env'] = $sCurrEnv;
 
 		$aSQLFixesTables = array();
 		$aSQLFixesAll = array();
@@ -604,7 +616,7 @@ try
 		$oChange->Set("userinfo", 'Change made via the toolkit');
 		$oChange->DBInsert();
 		echo "<pre>\n";
-		$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/, $oChange);
+		$bUpdateNeeded = MetaModel::CheckDataSources(false, true);
 		echo "</pre>\n";
 		echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
 		break;
