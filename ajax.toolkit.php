@@ -306,7 +306,7 @@ function MakeDictionaryFile($sLangCode, $sLangName, $sLangLocName, $sSourceFile,
 function CheckDBSchema()
 {
 	$aAnalysis = array();
-	list($aErrors, $aSugFix) = MetaModel::DBCheckFormat();
+	list($aErrors, $aSugFix, $aCondensedQueries) = MetaModel::DBCheckFormat();
 	foreach ($aErrors as $sClass => $aTarget)
 	{
 		foreach ($aTarget as $sAttCode => $aIssues)
@@ -330,6 +330,8 @@ function CheckDBSchema()
 			}
 		}
 	}
+
+	$aAnalysis['*CondensedQueries']['sql'] = implode(";\n", $aCondensedQueries);
 
 	if (defined(ITOP_VERSION) && version_compare(ITOP_VERSION, '2.7.0') < 0)
 	{
@@ -562,11 +564,8 @@ try
 		echo "<p>&nbsp;</p>\n";
 		echo "<hr>\n";
 		echo "<h2>SQL commands to copy/paste:</h2>\n";
-		if (count($aSQLFixesTables) > 0)
-		{
-			$aSQLFixesAll[] = '';
-		}
-		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L, monospaced\">".implode(";\n", $aSQLFixesAll)."</textarea>";
+		$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
+		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L,serif\">$sSQLFixAll</textarea>";
 		break;
 		
 		case 'check_hk':
