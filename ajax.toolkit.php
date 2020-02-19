@@ -330,8 +330,20 @@ function CheckDBSchema()
 			}
 		}
 	}
-
-	$aAnalysis['*CondensedQueries']['sql'] = implode(";\n", $aCondensedQueries);
+	$sSQL = '';
+	foreach ($aCondensedQueries as $sCondensedQuery)
+	{
+		$sSQL .= $sCondensedQuery;
+		if (substr_compare($sCondensedQuery, ';', -1) !== 0)
+		{
+			$sSQL .= ";\n";
+		}
+		else
+		{
+			$sSQL .= "\n";
+		}
+	}
+	$aAnalysis['*CondensedQueries']['sql'] = $sSQL;
 
 	if (defined(ITOP_VERSION) && version_compare(ITOP_VERSION, '2.7.0') < 0)
 	{
