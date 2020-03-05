@@ -195,6 +195,7 @@ try
 			var oMap = { operation: 'update_code' };
 			var bOk = confirm('Are you sure you want to compile the code ?');
 		}
+		
 		var oUseSymlinks = $('#symlink:checked');
 		if (oUseSymlinks.length > 0)
 		{
@@ -204,6 +205,9 @@ try
 		
 		if (bOk)
 		{
+			// remove previous results
+			$("div#content_apply_sql").html("");
+			
 			var sTitleLoadingPrefix = '/!\\\\ - ';
 			var sOriginalTitle = document.title;
 			
