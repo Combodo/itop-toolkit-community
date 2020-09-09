@@ -484,12 +484,12 @@ try
 				echo "<option value=\"$sProposedModules\">$sProposedModules</option>\n";
 			}
 		}
-		echo "</select>\n";
-			echo "<input type=\"button\" value=\"♻️ Refresh\" onclick=\"CheckDictionary(true);\"/>\n";
-		echo "<textarea style=\"width:100%;height:400px;\">";
-		echo MakeDictionaryTemplate($sModules, $sDefaultCode);
-		echo "</textarea>\n";
-		break;
+			echo "</select>\n";
+			echo "<input type=\"button\" value=\"🔁 Refresh\" onclick=\"CheckDictionary(true);\"/>\n";
+			echo "<textarea style=\"width:100%;height:400px;\">";
+			echo MakeDictionaryTemplate($sModules, $sDefaultCode);
+			echo "</textarea>\n";
+			break;
 
 		case 'prepare_new_dictionary':
 			InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
@@ -555,26 +555,26 @@ try
 				}
 			}
 		}
-		if (count($aSQLFixesTables) == 0)
-		{
-			echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
-		}
-		echo "<p>&nbsp;</p>\n";
-		if (function_exists('symlink'))
-		{
-			echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
-		}
-			echo "<input type=\"button\" value=\"♻️ Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
-		if (count($aSQLFixesTables) > 0)
-		{
-			echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
-		}
-		$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
-		$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
+			if (count($aSQLFixesTables) == 0)
+			{
+				echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
+			}
+			echo "<p>&nbsp;</p>\n";
+			if (function_exists('symlink'))
+			{
+				echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
+			}
+			echo "<input type=\"button\" value=\"🔁 Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
+			if (count($aSQLFixesTables) > 0)
+			{
+				echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+			}
+			$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
+			$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
 			echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\"📄 Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
-		echo "<div id=\"content_apply_sql\"></div>\n";
-		echo "<p>&nbsp;</p>\n";
-		echo "<hr>\n";
+			echo "<div id=\"content_apply_sql\"></div>\n";
+			echo "<p>&nbsp;</p>\n";
+			echo "<hr>\n";
 		echo "<h2>SQL commands to copy/paste:</h2>\n";
 		$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
 		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L,serif\">$sSQLFixAll</textarea>";
