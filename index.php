@@ -443,7 +443,7 @@ JS
 	$oP->add("<li><a href=\"#tab_0\" class=\"tab\"><span>Data Model Consistency</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_1\" class=\"tab\"><span>iTop update</span></a></li>\n");
 	$oP->add("<li><a href=\"#tab_2\" class=\"tab\"><span>Data Integrity</span></a></li>\n");
-	$oP->add("<li><a href=\"#tab_3\" class=\"tab\"><span>Translations / Dictionnary</span></a></li>\n");
+	$oP->add("<li><a href=\"#tab_3\" class=\"tab\"><span>Translations / Dictionary</span></a></li>\n");
 	$oP->add("</ul>\n");
 
 	$oP->add("<div id=\"tab_index\">");
