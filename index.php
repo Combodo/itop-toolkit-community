@@ -208,7 +208,7 @@ try
 			// remove previous results
 			$("div#content_apply_sql").html("");
 			
-			var sTitleLoadingPrefix = '/!\\\\ - ';
+			var sTitleLoadingPrefix = '⚠️ - ';
 			var sOriginalTitle = document.title;
 			
 			$('#apply_sql_indicator').html('<img title=\"loading...\" src=\"../images/indicator.gif\" />');
