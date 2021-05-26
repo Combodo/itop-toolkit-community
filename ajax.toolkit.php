@@ -638,9 +638,10 @@ try
 			$bUseSymlinks = utils::ReadParam('symlink', false);
 			$oEnvironment = new RunTimeEnvironment('production');
 			$oEnvironment->CompileFrom('production', $bUseSymlinks);
+			utils::InitTimeZone();
 			$datetime = date("Y-m-d H:i:s");
 			echo "<p>Done! ($datetime)</p>";
-		break;
+			break;
 
 		case 'update_code_db':
 
