@@ -157,7 +157,6 @@ if (file_exists(APPROOT.'/bootstrap.inc.php'))
 	require_once(APPROOT.'/bootstrap.inc.php');
 }
 require_once(APPROOT."/application/applicationcontext.class.inc.php");
-require_once(APPROOT.'sources/application/WebPage/NiceWebPage.php');
 require_once(APPROOT.'application/utils.inc.php');
 require_once(APPROOT."setup/runtimeenv.class.inc.php");
 
