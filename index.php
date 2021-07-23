@@ -170,6 +170,7 @@ if (!file_exists(ITOP_DEFAULT_CONFIG_FILE))
 require_once(APPROOT.'/application/startup.inc.php');
 
 $oP = new NiceWebPage('Data Model Toolkit');
+$oP->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'toolkit/itop-legacy.css');
 $oP->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'toolkit/toolkit.css');
 
 try
