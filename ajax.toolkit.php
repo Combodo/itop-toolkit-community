@@ -17,6 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  */
 
+use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\CollapsibleSection\CollapsibleSectionUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\FieldSet\FieldSetUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Html\Html;
+use Combodo\iTop\Application\UI\Base\Component\Input\Select\SelectOptionUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Input\SelectUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Input\TextArea;
+use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Title\Title;
+use Combodo\iTop\Application\UI\Base\Component\Title\TitleUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
+
 define('TOOLKITENV', 'toolkit');
 
 
@@ -25,7 +38,7 @@ function RebuildToolkitEnvironment()
 	$oConfig = new Config(APPCONF.'production'.'/'.ITOP_CONFIG_FILE);
 	$oToolkitConfig = clone($oConfig);
 	$oToolkitConfig->ChangeModulesPath('production', TOOLKITENV);
-	
+
 	if (file_exists(APPROOT.'data/production.delta.xml'))
 	{
 		copy(APPROOT.'data/production.delta.xml', APPROOT.'data/toolkit.delta.xml');
@@ -39,7 +52,7 @@ function RebuildToolkitEnvironment()
 	{
 		SetupUtils::copydir(APPROOT.'data/production-modules', APPROOT.'data/toolkit-modules');
 	}
-	
+
 	$oEnvironment = new RunTimeEnvironment(TOOLKITENV);
 	$oEnvironment->WriteConfigFileSafe($oToolkitConfig);
 	$oEnvironment->CompileFrom('production');
@@ -68,7 +81,7 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 	$aAvailableLanguages = Dict::GetLanguages();
 	$sDesc = $aAvailableLanguages[$sLanguage]['description'];
 	$sLocalizedDesc = $aAvailableLanguages[$sLanguage]['localized_description'];
-	
+
 	$sRes .= "// Dictionary conventions\n";
 	$sRes .= htmlentities("// Class:<class_name>\n", ENT_QUOTES, 'UTF-8');
 	$sRes .= htmlentities("// Class:<class_name>+\n", ENT_QUOTES, 'UTF-8');
@@ -119,7 +132,7 @@ function MakeDictionaryTemplate($sModules = '', $sLanguage = 'EN US')
 			foreach(MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
 			{
 				if ($sAttCode == 'friendlyname') continue;
-				
+
 				// Skip this attribute if not originaly defined in this class
 				if (MetaModel::GetAttributeOrigin($sClass, $sAttCode) != $sClass) continue;
 
@@ -247,7 +260,7 @@ function BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName)
 	SetupUtils::rrmdir($sWorkingFolder);
 
 	// Display download link
-	echo "<div>Translation files package is available under /data/$sZipName</div>";
+	return "Translation files package is available under /data/$sZipName";
 }
 
 /**
@@ -372,37 +385,12 @@ function CheckDBSchema()
 			}
 		}
 	}
-	return $aAnalysis;	
+	return $aAnalysis;
 }
 
 function InitDataModel($sConfigFileName, $bModelOnly = true)
 {
-	require_once(APPROOT.'/core/log.class.inc.php');
-	require_once(APPROOT.'/core/kpi.class.inc.php');
-	require_once(APPROOT.'/core/coreexception.class.inc.php');
-	require_once(APPROOT.'/core/dict.class.inc.php');
-	require_once(APPROOT.'/core/attributedef.class.inc.php');
-	require_once(APPROOT.'/core/filterdef.class.inc.php');
-	require_once(APPROOT.'/core/stimulus.class.inc.php');
-	require_once(APPROOT.'/core/MyHelpers.class.inc.php');
-	require_once(APPROOT.'/core/expression.class.inc.php');
-	require_once(APPROOT.'/core/cmdbsource.class.inc.php');
-	require_once(APPROOT.'/core/sqlquery.class.inc.php');
-	require_once(APPROOT.'/core/dbobject.class.php');
-	if (file_exists(APPROOT.'/core/dbsearch.class.php'))
-	{
-		// iTop 2.2.0 or newer
-		require_once(APPROOT.'/core/dbsearch.class.php');
-	}
-	else
-	{
-		// Pre 2.2
-		require_once(APPROOT.'/core/dbobjectsearch.class.php');
-	}
-	require_once(APPROOT.'/core/dbobjectset.class.php');
-	require_once(APPROOT.'/application/cmdbabstract.class.inc.php');
-	require_once(APPROOT.'/core/userrights.class.inc.php');
-	require_once(APPROOT.'/setup/moduleinstallation.class.inc.php');
+
 
 	MetaModel::ResetCache();
 	MetaModel::Startup($sConfigFileName, $bModelOnly, false /* allow cache */, false /* $bTraceSourceFiles */, TOOLKITENV);
@@ -410,9 +398,9 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
 
 
 /****************************************************************************
- * 
+ *
  * Main Program
- * 
+ *
  ****************************************************************************/
 if (file_exists('../approot.inc.php'))
 {
@@ -445,271 +433,541 @@ try
 
 	$sOperation = utils::ReadParam('operation', '');
 
-	switch($sOperation)
-	{
-		case 'check_model':
-		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
-		MetaModel::CheckDefinitions();
-		break;
-		
-		case 'check_dictionary':
-		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
-		$sDefaultCode = utils::ReadParam('lang', 'EN US');
-		$sModules = utils::ReadParam('modules', 'bizmodel');
-		$aAvailableLanguages = Dict::GetLanguages();
-		echo "<select id=\"language\" name=\"language\">\n";
-		foreach($aAvailableLanguages as $sLangCode => $aInfo)
+
+	if (version_compare(ITOP_DESIGN_LATEST_VERSION , '3.0') < 0) {
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// LEGACY
+		/// /////////////////////////////////////////////////////////////////////////////////////////////////////
+		switch($sOperation)
 		{
-			$sSelected = ($sLangCode == $sDefaultCode ) ? 'selected ' : '';
-			echo "<option value=\"{$sLangCode}\" $sSelected>{$aInfo['description']} ({$aInfo['localized_description']})</option>\n";
-		}
-		$aModules = array(
-			'bizmodel',
-			'core/cmdb',
-			'gui',
-			'application',
-			'addon/userrights',
-			'monitoring',
-		);
-		echo "</select>\n";
-		echo "<select id=\"modules\" name=\"modules\">\n";
-		foreach ($aModules as $sProposedModules)
-		{
-			if ($sProposedModules == $sModules)
-			{
-				echo "<option value=\"$sProposedModules\" SELECTED>$sProposedModules</option>\n";
-			}
-			else
-			{
-				echo "<option value=\"$sProposedModules\">$sProposedModules</option>\n";
-			}
-		}
-			echo "</select>\n";
-			echo "<input type=\"button\" value=\"⟳ Refresh\" onclick=\"CheckDictionary(true);\"/>\n";
-			echo "<textarea style=\"width:100%;height:400px;\">";
-			echo MakeDictionaryTemplate($sModules, $sDefaultCode);
-			echo "</textarea>\n";
-			break;
+			case 'check_model':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+				MetaModel::CheckDefinitions();
+				break;
 
-		case 'prepare_new_dictionary':
-			InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
-			$sLangCode = trim(utils::ReadParam('lang_code', '', false, 'raw'));
-			$sLangName = trim(utils::ReadParam('lang_name', '', false, 'raw'));
-			$sLangLocName = trim(utils::ReadParam('lang_loc_name', '', false, 'raw'));
-			if(empty($sLangCode) || empty($sLangName) || empty($sLangLocName))
-			{
-				echo "Please fill all fields.";
-
-			}
-			else
-			{
-				BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName);
-			}
-		break;
-		
-		case 'check_db_schema':
-		$sCurrEnv = $_SESSION['itop_env'];
-		$_SESSION['itop_env'] = TOOLKITENV;
-		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
-
-		$aAnalysis = CheckDBSchema();
-		$_SESSION['itop_env'] = $sCurrEnv;
-
-		$aSQLFixesTables = array();
-		$aSQLFixesAll = array();
-		foreach($aAnalysis as $sClass => $aData)
-		{
-			if (isset($aData['table_issues']))
-			{
-				echo "<h2>".MetaModel::GetClassIcon($sClass)."&nbsp;Class $sClass</h2>\n";
-				echo "<ul>\n";
-				foreach($aData['table_issues'] as $sAttCode => $aIssues)
+			case 'check_dictionary':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
+				$sDefaultCode = utils::ReadParam('lang', 'EN US');
+				$sModules = utils::ReadParam('modules', 'bizmodel');
+				$aAvailableLanguages = Dict::GetLanguages();
+				echo "<select id=\"language\" name=\"language\">\n";
+				foreach($aAvailableLanguages as $sLangCode => $aInfo)
 				{
-					foreach($aIssues as $sText)
+					$sSelected = ($sLangCode == $sDefaultCode ) ? 'selected ' : '';
+					echo "<option value=\"{$sLangCode}\" $sSelected>{$aInfo['description']} ({$aInfo['localized_description']})</option>\n";
+				}
+				$aModules = array(
+					'bizmodel',
+					'core/cmdb',
+					'gui',
+					'application',
+					'addon/userrights',
+					'monitoring',
+				);
+				echo "</select>\n";
+				echo "<select id=\"modules\" name=\"modules\">\n";
+				foreach ($aModules as $sProposedModules)
+				{
+					if ($sProposedModules == $sModules)
 					{
-						echo "<li>$sText</li>";
+						echo "<option value=\"$sProposedModules\" SELECTED>$sProposedModules</option>\n";
+					}
+					else
+					{
+						echo "<option value=\"$sProposedModules\">$sProposedModules</option>\n";
 					}
 				}
-				echo "</ul>\n";
-			}
-			if (isset($aData['table_fixes']))
-			{
-				echo "<p class=\"fixes\">\n";
-				foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+				echo "</select>\n";
+				echo "<input type=\"button\" value=\"⟳ Refresh\" onclick=\"CheckDictionary(true);\"/>\n";
+				echo "<textarea style=\"width:100%;height:400px;\">";
+				echo MakeDictionaryTemplate($sModules, $sDefaultCode);
+				echo "</textarea>\n";
+				break;
+
+			case 'prepare_new_dictionary':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
+				$sLangCode = trim(utils::ReadParam('lang_code', '', false, 'raw'));
+				$sLangName = trim(utils::ReadParam('lang_name', '', false, 'raw'));
+				$sLangLocName = trim(utils::ReadParam('lang_loc_name', '', false, 'raw'));
+				if(empty($sLangCode) || empty($sLangName) || empty($sLangLocName))
 				{
-					foreach($aIssues as $sSQL)
+					echo "Please fill all fields.";
+
+				}
+				else
+				{
+					$sMessage = BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName);
+					echo"<div>$sMessage</div>";
+				}
+				break;
+
+			case 'check_db_schema':
+				$sCurrEnv = $_SESSION['itop_env'];
+				$_SESSION['itop_env'] = TOOLKITENV;
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+
+				$aAnalysis = CheckDBSchema();
+				$_SESSION['itop_env'] = $sCurrEnv;
+
+				$aSQLFixesTables = array();
+				$aSQLFixesAll = array();
+				foreach($aAnalysis as $sClass => $aData)
+				{
+					if (isset($aData['table_issues']))
 					{
-						$sSQLEscaped = htmlentities($sSQL, ENT_QUOTES, 'UTF-8');
-						echo "<p class=\"fix-sql\">$sSQLEscaped</p>\n";
+						echo "<h2>".MetaModel::GetClassIcon($sClass)."&nbsp;Class $sClass</h2>\n";
+						echo "<ul>\n";
+						foreach($aData['table_issues'] as $sAttCode => $aIssues)
+						{
+							foreach($aIssues as $sText)
+							{
+								echo "<li>$sText</li>";
+							}
+						}
+						echo "</ul>\n";
 					}
-					$aSQLFixesTables[] = implode(";\n", $aIssues);
-					$aSQLFixesAll[] = implode(";\n", $aIssues);
+					if (isset($aData['table_fixes']))
+					{
+						echo "<p class=\"fixes\">\n";
+						foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+						{
+							foreach($aIssues as $sSQL)
+							{
+								$sSQLEscaped = htmlentities($sSQL, ENT_QUOTES, 'UTF-8');
+								echo "<p class=\"fix-sql\">$sSQLEscaped</p>\n";
+							}
+							$aSQLFixesTables[] = implode(";\n", $aIssues);
+							$aSQLFixesAll[] = implode(";\n", $aIssues);
+						}
+						echo "</p>\n";
+					}
+					if (isset($aData['view_fixes']))
+					{
+						foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+						{
+							$aSQLFixesAll[] = implode(";\n", $aIssues);
+						}
+					}
 				}
-				echo "</p>\n";
-			}
-			if (isset($aData['view_fixes']))
-			{
-				foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+				if (count($aSQLFixesTables) == 0)
 				{
-					$aSQLFixesAll[] = implode(";\n", $aIssues);
+					echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
 				}
-			}
-		}
-			if (count($aSQLFixesTables) == 0)
-			{
-				echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
-			}
-			echo "<p>&nbsp;</p>\n";
-			if (function_exists('symlink'))
-			{
-				echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
-			}
-			echo "<input type=\"button\" value=\"⟳ Refresh\" onclick=\"CheckDBSchema(true);\"/>\n";
-			if (count($aSQLFixesTables) > 0)
-			{
-				echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
-			}
-			$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
-			$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
-			echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\"📄 Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
-			echo "<div id=\"content_apply_sql\"></div>\n";
-			echo "<p>&nbsp;</p>\n";
-			echo "<hr>\n";
-		echo "<h2>SQL commands to copy/paste:</h2>\n";
-		$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
-		echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L,serif\">$sSQLFixAll</textarea>";
-		break;
-		
-		case 'check_hk':
-		InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
-		echo "<pre>\n";
-		$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
-		echo "</pre>\n";
-		if ($bUpdateNeeded)
-		{
-			echo "<p><button onClick=\"BuildHK(false);\">Compute HKeys</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
-		}
-		else
-		{
-			echo "<p><button onClick=\"BuildHK(true);\">Rebuild HKeys Anyway</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";		
-		}
-		break;
-		
-		case 'build_hk':
-		$bForce = utils::ReadParam('force', 0);
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-		echo "<pre>\n";
-		$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
-		echo "</pre>\n";
-		echo "<p><button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
-		break;
-		
+				echo "<p>&nbsp;</p>\n";
+				if (function_exists('symlink'))
+				{
+					echo "<p><input type=\"checkbox\" id=\"symlink\" value=\"1\"><label for=\"symlink\">&nbsp;Create symbolic links instead of creating a copy in env-production (useful for debugging extensions)</label></p>\n";
+				}
+				echo "<input type=\"button\" value=\"⟳ Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
+				if (count($aSQLFixesTables) > 0)
+				{
+					echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+				}
+				$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
+				$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
+				echo "<input type=\"submit\" onclick=\"doApply(false);\"title=\"Compile from $sSourceDirHtml to env-production\" value=\"📄 Update iTop code \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+				echo "<div id=\"content_apply_sql\"></div>\n";
+				echo "<p>&nbsp;</p>\n";
+				echo "<hr>\n";
+				echo "<h2>SQL commands to copy/paste:</h2>\n";
+				$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
+				echo "<textarea style=\"width:100%;height:200px;font-family:Courrier, Courrier New, Nimbus Mono L,serif\">$sSQLFixAll</textarea>";
+				break;
 
-		case 'check_datasources':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-		echo "<pre>\n";
-		$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
-		echo "</pre>\n";
-		if ($bUpdateNeeded)
-		{
-			echo "<p><button onClick=\"FixDataSources();\">Fix Data Sources</button>&nbsp;&nbsp;<button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";
-		}
-		else
-		{
-			echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
-		}
-		break;
+			case 'check_hk':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+				echo "<pre>\n";
+				$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
+				echo "</pre>\n";
+				if ($bUpdateNeeded)
+				{
+					echo "<p><button onClick=\"BuildHK(false);\">Compute HKeys</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
+				}
+				else
+				{
+					echo "<p><button onClick=\"BuildHK(true);\">Rebuild HKeys Anyway</button>&nbsp;&nbsp;<button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
+				}
+				break;
 
-		case 'fix_datasources':
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-		$oChange = MetaModel::NewObject("CMDBChange");
-		$oChange->Set("date", time());
-		$oChange->Set("userinfo", 'Change made via the toolkit');
-		$oChange->DBInsert();
-		echo "<pre>\n";
-		$bUpdateNeeded = MetaModel::CheckDataSources(false, true);
-		echo "</pre>\n";
-		echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";		
-		break;
+			case 'build_hk':
+				$bForce = utils::ReadParam('force', 0);
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				echo "<pre>\n";
+				$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
+				echo "</pre>\n";
+				echo "<p><button onClick=\"CheckHK(true);\"> Refresh </button></p>\n";
+				break;
 
-		case 'update_code':
-			// Compile the code into the production environment
-			echo "<p>Compiling...</p>";
-			$bUseSymlinks = utils::ReadParam('symlink', false);
-			$oEnvironment = new RunTimeEnvironment('production');
-			$oEnvironment->CompileFrom('production', $bUseSymlinks);
-			utils::InitTimeZone();
-			$datetime = date("Y-m-d H:i:s");
-			echo "<p>Done! ($datetime)</p>";
-			break;
+
+			case 'check_datasources':
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				echo "<pre>\n";
+				$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
+				echo "</pre>\n";
+				if ($bUpdateNeeded)
+				{
+					echo "<p><button onClick=\"FixDataSources();\">Fix Data Sources</button>&nbsp;&nbsp;<button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";
+				}
+				else
+				{
+					echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";
+				}
+				break;
+
+			case 'fix_datasources':
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$oChange = MetaModel::NewObject("CMDBChange");
+				$oChange->Set("date", time());
+				$oChange->Set("userinfo", 'Change made via the toolkit');
+				$oChange->DBInsert();
+				echo "<pre>\n";
+				$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/);
+				echo "</pre>\n";
+				echo "<p><button onClick=\"CheckDataSources(true);\"> Refresh </button></p>\n";
+				break;
+
+			case 'update_code':
+				// Compile the code into the production environment
+				echo "<p>Compiling...</p>";
+				$bUseSymlinks = utils::ReadParam('symlink', false);
+				$oEnvironment = new RunTimeEnvironment('production');
+				$oEnvironment->CompileFrom('production', $bUseSymlinks);
+				utils::InitTimeZone();
+				$datetime = date("Y-m-d H:i:s");
+				echo "<p>Done! ($datetime)</p>";
+				break;
 
 		case 'update_code_db':
 
-		// Compile the code into the production environment
-		echo "<p>Compiling...</p>";
-		$bUseSymlinks = utils::ReadParam('symlink', false);
-		$oEnvironment = new RunTimeEnvironment('production');
-		$oEnvironment->CompileFrom('production', $bUseSymlinks);
+				// Compile the code into the production environment
+				echo "<p>Compiling...</p>";
+				$bUseSymlinks = utils::ReadParam('symlink', false);
+				$oEnvironment = new RunTimeEnvironment('production');
+				$oEnvironment->CompileFrom('production', $bUseSymlinks);
 
-		echo "<p>Updating the DB format (tables and views)...</p>";
-		InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-		$aAnalysis = CheckDBSchema();
+				echo "<p>Updating the DB format (tables and views)...</p>";
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$aAnalysis = CheckDBSchema();
 
-		try
-		{
-			foreach($aAnalysis as $sClass => $aData)
-			{
-				if (isset($aData['table_fixes']))
+				try
 				{
-					foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+					foreach($aAnalysis as $sClass => $aData)
 					{
-						foreach($aIssues as $sSQL)
+						if (isset($aData['table_fixes']))
 						{
-							CMDBSource::Query($sSQL);
-							echo "<p class=\"sql_ok\">$sSQL;</p>\n";
+							foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+							{
+								foreach($aIssues as $sSQL)
+								{
+									CMDBSource::Query($sSQL);
+									echo "<p class=\"sql_ok\">$sSQL;</p>\n";
+								}
+							}
+						}
+					}
+
+					foreach($aAnalysis as $sClass => $aData)
+					{
+						if (isset($aData['view_fixes']))
+						{
+							foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+							{
+								foreach($aIssues as $sSQL)
+								{
+									CMDBSource::Query($sSQL);
+									echo "<p class=\"sql_ok\">$sSQL;</p>\n";
+								}
+							}
+						}
+					}
+					echo "<p>Done.</p>";
+				}
+				catch(MySQLException $e)
+				{
+					echo "<p class=\"sql_error\">$sSQL;</p>\n";
+					echo "<p class=\"sql_error\">".$e->getHtmlDesc()."</p>\n";
+					echo "<p class=\"sql_error\">Operation aborted.</p>\n";
+				}
+				break;
+
+			default:
+				echo"The operation $sOperation is not supported";
+		}
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////
+		/// END LEGACY
+		/// /////////////////////////////////////////////////////////////////////////////////////////////////////
+	} else {
+
+		$oPage = new AjaxPage('');
+		$oPage->no_cache();
+		switch($sOperation)
+		{
+			case 'check_model':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+				MetaModel::CheckDefinitions();
+				break;
+
+			case 'check_dictionary':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
+				$sDefaultCode = utils::ReadParam('lang', 'EN US');
+				$sModules = utils::ReadParam('modules', 'bizmodel');
+				$aAvailableLanguages = Dict::GetLanguages();
+
+				$oBlock = UIContentBlockUIBlockFactory::MakeStandard();
+				$oPage->AddSubBlock($oBlock);
+
+				$oTextArea = new TextArea('', MakeDictionaryTemplate($sModules, $sDefaultCode),null,100,10);
+				$oTextArea->AddCSSClass('ibo-input-text--export');
+				$oTextArea->AddCSSClass('mb-5');
+				$oBlock->AddSubBlock($oTextArea);
+
+				$oSelectLanguage = SelectUIBlockFactory::MakeForSelect("language","language");
+				$oBlock->AddSubBlock($oSelectLanguage);
+				foreach($aAvailableLanguages as $sLangCode => $aInfo)
+				{
+					$oOption = SelectOptionUIBlockFactory::MakeForSelectOption($sLangCode,$aInfo['description'].' ('.$aInfo['localized_description'].')',($sLangCode == $sDefaultCode ));
+					$oSelectLanguage->AddOption($oOption);
+				}
+				$aModules = [
+					'bizmodel',
+					'core/cmdb',
+					'gui',
+					'application',
+					'addon/userrights',
+					'monitoring',
+				];
+				$oSelectModule = SelectUIBlockFactory::MakeForSelect("modules","modules");
+				$oBlock->AddSubBlock($oSelectModule);
+
+				foreach ($aModules as $sProposedModules)
+				{
+					$oOption = SelectOptionUIBlockFactory::MakeForSelectOption($sProposedModules,$sProposedModules,($sProposedModules == $sModules));
+					$oSelectModule->AddOption($oOption);
+				}
+				break;
+
+			case 'prepare_new_dictionary':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, true);
+				$sLangCode = trim(utils::ReadParam('lang_code', '', false, 'raw'));
+				$sLangName = trim(utils::ReadParam('lang_name', '', false, 'raw'));
+				$sLangLocName = trim(utils::ReadParam('lang_loc_name', '', false, 'raw'));
+				if(empty($sLangCode) || empty($sLangName) || empty($sLangLocName))
+				{
+					echo "Please fill all fields.";
+
+				}
+				else
+				{
+					$sMessage = BuildNewLanguagepackage($sLangCode, $sLangName, $sLangLocName);
+					$oPage->AddSubBlock(AlertUIBlockFactory::MakeForSuccess($sMessage));
+				}
+				break;
+
+			case 'check_db_schema':
+				$sCurrEnv = $_SESSION['itop_env'];
+				$_SESSION['itop_env'] = TOOLKITENV;
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+
+				$aAnalysis = CheckDBSchema();
+				$_SESSION['itop_env'] = $sCurrEnv;
+
+				$aSQLFixesTables = array();
+				$aSQLFixesAll = array();
+				foreach($aAnalysis as $sClass => $aData)
+				{
+					if (isset($aData['table_issues']))
+					{
+						$oFieldSet = PanelUIBlockFactory::MakeForClass($sClass,"Class ".$sClass) ;
+						$oFieldSet->SetIcon(MetaModel::GetClassIcon($sClass, false));
+						$oPage->AddSubBlock($oFieldSet);
+
+						$oFieldSet->AddSubBlock( new Html("<ul>"));
+						foreach($aData['table_issues'] as $sAttCode => $aIssues)
+						{
+							foreach($aIssues as $sText)
+							{
+								$oFieldSet->AddSubBlock( new Html("<li>$sText</li>"));
+							}
+						}
+						$oFieldSet->AddSubBlock( new Html("</ul>"));
+					}
+					if (isset($aData['table_fixes']))
+					{
+						$oBlockFixes = UIContentBlockUIBlockFactory::MakeStandard(null,['fixes']);
+						$oFieldSet->AddSubBlock($oBlockFixes);
+						foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+						{
+							foreach($aIssues as $sSQL)
+							{
+								$oBlockSql = UIContentBlockUIBlockFactory::MakeStandard(null,['fix-sql']);
+								$oBlockSql->AddSubBlock(new Html($sSQL));
+								$oBlockFixes->AddSubBlock($oBlockSql);
+							}
+							$aSQLFixesTables[] = implode(";\n", $aIssues);
+							$aSQLFixesAll[] = implode(";\n", $aIssues);
+						}
+					}
+					if (isset($aData['view_fixes']))
+					{
+						foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+						{
+							$aSQLFixesAll[] = implode(";\n", $aIssues);
 						}
 					}
 				}
-			}
-			
-			foreach($aAnalysis as $sClass => $aData)
-			{
-				if (isset($aData['view_fixes']))
+				if (count($aSQLFixesTables) == 0)
 				{
-					foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+					$oPage->AddSubBlock(AlertUIBlockFactory::MakeForSuccess( "Ok, the database format is compliant with the data model. (Note: the views have not been checked)"));
+				}
+
+				$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
+				$oCommandsTitle = CollapsibleSectionUIBlockFactory::MakeStandard('SQL commands to copy/paste:');
+				$oCommandsTitle->SetOpenedByDefault(true);
+				$oPage->AddSubBlock($oCommandsTitle);
+				$oCommands = new TextArea("",$sSQLFixAll);
+				$oCommands->AddCSSClasses(['ibo-input-text--export',"ibo-queryoql"]);
+				$oCommandsTitle->AddSubBlock($oCommands);
+
+				if (count($aSQLFixesTables) > 0)
+				{
+					$oButtonUpCodeAndDb = ButtonUIBlockFactory::MakeForPrimaryAction("Compile + Update DB tables and views","e","📀 Update iTop code and Database! ", true,"bt_up_code_and_db");
+					$oButtonUpCodeAndDb->SetOnClickJsCode("doApply(true);");
+					$oPage->AddSubBlock($oButtonUpCodeAndDb);
+				}
+
+
+				break;
+
+			case 'check_hk':
+				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
+				$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
+
+				if ($bUpdateNeeded)
+				{
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Compute HKeys","e","Compute HKeys ", false,"bt_compute_hk");
+					$oButtonBuildHK->SetOnClickJsCode("BuildHK(false);");
+					$oButtonBuildHK->AddCSSClass("mb-5");
+					$oPage->AddSubBlock($oButtonBuildHK);
+				}
+				else
+				{
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Rebuild HKeys Anyway","e","Rebuild HKeys Anyway ", false,"bt_compute_hk");
+					$oButtonBuildHK->SetOnClickJsCode("BuildHK(true);");
+					$oButtonBuildHK->AddCSSClass("mb-5");
+					$oPage->AddSubBlock($oButtonBuildHK);
+				}
+				break;
+
+			case 'build_hk':
+				$bForce = utils::ReadParam('force', 0);
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
+				break;
+
+
+			case 'check_datasources':
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
+				if ($bUpdateNeeded)
+				{
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Fix Data Sources","e","Fix Data Sources ", false,"bt_fix_DS");
+					$oButtonBuildHK->SetOnClickJsCode("FixDataSources();");
+					$oPage->AddSubBlock($oButtonBuildHK);
+				}
+				break;
+
+			case 'fix_datasources':
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$oChange = MetaModel::NewObject("CMDBChange");
+				$oChange->Set("date", time());
+				$oChange->Set("userinfo", 'Change made via the toolkit');
+				$oChange->DBInsert();
+				$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/);
+				break;
+
+			case 'update_code':
+				// Compile the code into the production environment
+				$bUseSymlinks = utils::ReadParam('symlink', false);
+				$oEnvironment = new RunTimeEnvironment('production');
+				$oEnvironment->CompileFrom('production', $bUseSymlinks);
+				$datetime = date("Y-m-d H:i:s");
+				$oPage->AddSubBlock(AlertUIBlockFactory::MakeForSuccess(" Compiling...","Done! ($datetime)"));
+				break;
+
+			case 'update_code_db':
+
+				// Compile the code into the production environment
+				$bUseSymlinks = utils::ReadParam('symlink', false);
+				$oEnvironment = new RunTimeEnvironment('production');
+				$oEnvironment->CompileFrom('production', $bUseSymlinks);
+
+				$oAlert = AlertUIBlockFactory::MakeForSuccess(" Compiling...","Updating the DB format (tables and views)...");
+				$oPage->AddSubBlock($oAlert);
+				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
+				$aAnalysis = CheckDBSchema();
+
+				try
+				{
+					foreach($aAnalysis as $sClass => $aData)
 					{
-						foreach($aIssues as $sSQL)
+						if (isset($aData['table_fixes']))
 						{
-							CMDBSource::Query($sSQL);
-							echo "<p class=\"sql_ok\">$sSQL;</p>\n";
+							foreach($aData['table_fixes'] as $sAttCode => $aIssues)
+							{
+								foreach($aIssues as $sSQL)
+								{
+									CMDBSource::Query($sSQL);
+									$oAlert->AddSubBlock(new Html("<p class=\"sql_ok\">$sSQL;</p>"));
+								}
+							}
 						}
 					}
+
+					foreach($aAnalysis as $sClass => $aData)
+					{
+						if (isset($aData['view_fixes']))
+						{
+							foreach($aData['view_fixes'] as $sAttCode => $aIssues)
+							{
+								foreach($aIssues as $sSQL)
+								{
+									CMDBSource::Query($sSQL);
+									$oAlert->AddSubBlock(new Html("<p class=\"sql_ok\">$sSQL;</p>"));
+								}
+							}
+						}
+					}
+					$oAlert->AddSubBlock(new Html("<p>Done</p>"));
 				}
-			}
-			echo "<p>Done.</p>";
+				catch(MySQLException $e)
+				{
+					echo "<p class=\"sql_error\">$sSQL;</p>\n";
+					echo "<p class=\"sql_error\">".$e->getHtmlDesc()."</p>\n";
+					echo "<p class=\"sql_error\">Operation aborted.</p>\n";
+					$oAlertFailure = AlertUIBlockFactory::MakeForFailure($sSQL,$e->getHtmlDesc() );
+					$oAlertFailure->AddSubBlock(new Html("<p>Operation aborted.</p>"));
+					$oPage->AddSubBlock($oAlertFailure);
+				}
+				break;
+
+			default:
+				$oPage->AddSubBlock(AlertUIBlockFactory::MakeForFailure("The operation $sOperation is not supported"));
 		}
-		catch(MySQLException $e)
-		{
-			echo "<p class=\"sql_error\">$sSQL;</p>\n";
-			echo "<p class=\"sql_error\">".$e->getHtmlDesc()."</p>\n";
-			echo "<p class=\"sql_error\">Operation aborted.</p>\n";
-		}
-		break;
-		
-		default:
-		echo "The operation $sOperation is not supported";
-	}	
+		$oPage->output();
+	}
+
 }
 catch(Exception $e)
 {
 	echo "<p>An error occured while processing the PHP files of the data model:</p><p>".$e->getMessage();
 	echo "</p><p>Check the PHP files describing the data model before running the toolkit again !</p>";
-	
+
 	/* Romain: I had implemented this to view the call stack, otherwise if the Exception was not trapped, the Apache server was crashing... why ?
 	if ($e instanceof CoreException)
 	{
 		echo "<p>".$e->getTraceAsHtml()."</p>\n";
 	}
 	*/
-}	
+}
 ?>
