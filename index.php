@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  */
 
+use Combodo\iTop\Application\Branding;
 use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\FieldSet\FieldSetUIBlockFactory;
@@ -970,9 +971,6 @@ function Display(NiceWebPage $oP): void
 JS
 	);
 
-	$oTitle = TitleUIBlockFactory::MakeForPage("Data Model Toolkit");
-	$oP->AddSubBlock($oTitle);
-
 	define('TOOLKITENV', 'toolkit');
 
 	$oConfig = new Config(APPCONF.'production/'.ITOP_CONFIG_FILE);
@@ -981,7 +979,9 @@ JS
 		throw new Exception('Missing entry source_dir from the config file');
 	}
 
-	$oPanelIndex = PanelUIBlockFactory::MakeNeutral("");
+	$oPanelIndex = PanelUIBlockFactory::MakeNeutral("")
+		->SetIcon(Branding::GetCompactMainLogoAbsoluteUrl())
+		->SetTitle('Data Model Toolkit');
 	$oP->AddSubBlock($oPanelIndex);
 
 	$oTabContainer = new TabContainer('tabbedContent', 'tab');
