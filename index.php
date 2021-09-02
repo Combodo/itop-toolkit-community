@@ -89,6 +89,13 @@ function CheckDBSchema()
 		$oCheckbox->SetBeforeInput(false);
 		$oCheckbox->GetInput()->AddCSSClass('ibo-input-checkbox');
 		$oFieldSetCompile->AddSubBlock($oCheckbox);
+
+		if (defined('\MFCompiler::USE_SYMBOLIC_LINKS_FILE_PATH') && (\MFCompiler::IsUseSymbolicLinksFlagPresent()))
+		{
+			/** @var \Combodo\iTop\Application\UI\Base\Component\Input\Input $oCheckboxInput */
+			$oCheckboxInput = $oCheckbox->GetInput();
+			$oCheckboxInput->SetIsChecked(true);
+		}
 	}
 	$oDivButton = UIContentBlockUIBlockFactory::MakeStandard("div_bt_compilation",['ibo-is-visible','mt-5','mb-5']);
 	$oFieldSetCompile->AddSubBlock($oDivButton);
