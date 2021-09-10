@@ -20,14 +20,11 @@
 use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\CollapsibleSection\CollapsibleSectionUIBlockFactory;
-use Combodo\iTop\Application\UI\Base\Component\FieldSet\FieldSetUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\Input\Select\SelectOptionUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Input\SelectUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Input\TextArea;
 use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
-use Combodo\iTop\Application\UI\Base\Component\Title\Title;
-use Combodo\iTop\Application\UI\Base\Component\Title\TitleUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
 
 define('TOOLKITENV', 'toolkit');
@@ -404,7 +401,6 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
  ****************************************************************************/
 if (file_exists('../approot.inc.php'))
 {
-	// iTop 1.0.2+
 	include('../approot.inc.php');
 }
 else // iTop 1.0 & 1.0.1
@@ -412,10 +408,10 @@ else // iTop 1.0 & 1.0.1
 	define('APPROOT', '../');
 }
 
-// iTop 2.7.0+
-if (file_exists(APPROOT.'/bootstrap.inc.php'))
-{
-	require_once(APPROOT.'/bootstrap.inc.php');
+if (class_exists('\Combodo\iTop\Application\Helper\Session')) {
+	\Combodo\iTop\Application\Helper\Session::Start();
+} else {
+	session_start();
 }
 
 try
