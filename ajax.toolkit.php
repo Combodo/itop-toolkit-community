@@ -837,7 +837,10 @@ try
 
 			case 'check_hk':
 				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
-				$bUpdateNeeded = MetaModel::CheckHKeys(true /*bDiagnostics*/, true /*bVerbose*/, false /*bForceComputation*/);
+				ob_start();
+				$bUpdateNeeded = MetaModel::CheckHKeys(true, true);
+				$sContent = ob_get_contents();
+				ob_end_clean();
 
 				if ($bUpdateNeeded)
 				{
@@ -853,23 +856,41 @@ try
 					$oButtonBuildHK->AddCSSClass("mb-5");
 					$oPage->AddSubBlock($oButtonBuildHK);
 				}
+				if ($sContent !== false) {
+					$oBlock = UIContentBlockUIBlockFactory::MakeForCode($sContent);
+					$oPage->AddSubBlock($oBlock);
+				}
 				break;
 
 			case 'build_hk':
-				$bForce = utils::ReadParam('force', 0);
+				$bForce = (utils::ReadParam('force', 'false') == 'true');
 				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-				$bUpdateNeeded = MetaModel::CheckHKeys(false, true /*bVerbose*/, $bForce /*bForceComputation*/);
+				ob_start();
+				$bUpdateNeeded = MetaModel::CheckHKeys(false, true, $bForce);
+				$sContent = ob_get_contents();
+				ob_end_clean();
+				if ($sContent !== false) {
+					$oBlock = UIContentBlockUIBlockFactory::MakeForCode($sContent);
+					$oPage->AddSubBlock($oBlock);
+				}
 				break;
 
 
 			case 'check_datasources':
 				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
-				$bUpdateNeeded = MetaModel::CheckDataSources(true /* bDiagnostics */, true /*bVerbose*/);
+				ob_start();
+				$bUpdateNeeded = MetaModel::CheckDataSources(true, true);
+				$sContent = ob_get_contents();
+				ob_end_clean();
 				if ($bUpdateNeeded)
 				{
 					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Fix Data Sources","e","Fix Data Sources ", false,"bt_fix_DS");
 					$oButtonBuildHK->SetOnClickJsCode("FixDataSources();");
 					$oPage->AddSubBlock($oButtonBuildHK);
+				}
+				if ($sContent !== false) {
+					$oBlock = UIContentBlockUIBlockFactory::MakeForCode($sContent);
+					$oPage->AddSubBlock($oBlock);
 				}
 				break;
 
@@ -879,7 +900,14 @@ try
 				$oChange->Set("date", time());
 				$oChange->Set("userinfo", 'Change made via the toolkit');
 				$oChange->DBInsert();
-				$bUpdateNeeded = MetaModel::CheckDataSources(false /* bDiagnostics */, true /*bVerbose*/);
+				ob_start();
+				$bUpdateNeeded = MetaModel::CheckDataSources(false, true);
+				$sContent = ob_get_contents();
+				ob_end_clean();
+				if ($sContent !== false) {
+					$oBlock = UIContentBlockUIBlockFactory::MakeForCode($sContent);
+					$oPage->AddSubBlock($oBlock);
+				}
 				break;
 
 			case 'update_code':
