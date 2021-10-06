@@ -19,6 +19,7 @@
 
 use Combodo\iTop\Application\Branding;
 use Combodo\iTop\Application\UI\Base\Component\Alert\AlertUIBlockFactory;
+use Combodo\iTop\Application\UI\Base\Component\Button\Button;
 use Combodo\iTop\Application\UI\Base\Component\Button\ButtonUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\FieldSet\FieldSetUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Form\FormUIBlockFactory;
@@ -106,6 +107,17 @@ function CheckDBSchema()
 	$oFieldSetCompile->AddSubBlock(new Html('<span id="apply_sql_indicator"></span>'));
 	$oFieldSetCompile->AddSubBlock(UIContentBlockUIBlockFactory::MakeStandard("content_apply_sql",['ibo-is-visible']));
 
+	$oFieldQuickSetup = FieldSetUIBlockFactory::MakeStandard('Quick setup tool');
+	$oBlock->AddSubBlock($oFieldQuickSetup);
+
+	$oDivQS = UIContentBlockUIBlockFactory::MakeStandard("content_schema",['ibo-is-visible']);
+	$oAlert = AlertUIBlockFactory::MakeForInformation("Bookmark this button by dragging it in your bookmarks bar in order to skip every setup steps by clicking on your new bookmarklet with a setup page opened.");
+	$oDivQS->AddSubBlock($oAlert);
+	$oCurrentQuickCurrentButton = ButtonUIBlockFactory::MakeLinkNeutral("javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://github.com/Combodo/itop-toolkit-community/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();","Quick Setup");
+	$oCurrentQuickCurrentButton->SetOnClickJsCode('javascript:return false;')->SetColor(Button::ENUM_COLOR_SCHEME_PRIMARY);
+	$oDivQS->AddSubBlock($oCurrentQuickCurrentButton);
+	$oFieldQuickSetup->AddSubBlock($oDivQS);
+	
 	return $oBlock;
 }
 
@@ -248,6 +260,12 @@ function CheckDBSchemaLegacy($oP)
 	$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
 	$oP->add("<button  onclick=\"doApply(false);\" title=\"Compile from $sSourceDirHtml to env-production\">📄 Update iTop code</button>&nbsp;<span id=\"apply_sql_indicator\"></span>\n");
 	$oP->add("<div id=\"content_apply_sql\"></div>\n</div>\n");
+	
+	
+	$oP->add("<hr/>");
+	$oP->p("Bookmark this button by dragging it in your bookmarks bar in order to skip every setup steps by clicking on your new bookmarklet with a setup page opened");
+	$oP->add("<a href=\"javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://github.com/Combodo/itop-toolkit-community/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();\" onclick=\"javascript:return false;\"> Quick Setup Tool</a>");
+
 }
 
 /**
