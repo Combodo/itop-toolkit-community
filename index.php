@@ -113,7 +113,7 @@ function CheckDBSchema()
 	$oDivQS = UIContentBlockUIBlockFactory::MakeStandard("content_schema",['ibo-is-visible']);
 	$oAlert = AlertUIBlockFactory::MakeForInformation("Bookmark this button by dragging it in your bookmarks bar in order to skip every setup steps by clicking on your new bookmarklet with a setup page opened.");
 	$oDivQS->AddSubBlock($oAlert);
-	$oCurrentQuickCurrentButton = ButtonUIBlockFactory::MakeLinkNeutral("javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://github.com/Combodo/itop-toolkit-community/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();","Quick Setup");
+	$oCurrentQuickCurrentButton = ButtonUIBlockFactory::MakeLinkNeutral("javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://cdn.jsdelivr.net/gh/Combodo/itop-toolkit-community@master/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();","Quick Setup");
 	$oCurrentQuickCurrentButton->SetOnClickJsCode('javascript:return false;')->SetColor(Button::ENUM_COLOR_SCHEME_PRIMARY);
 	$oDivQS->AddSubBlock($oCurrentQuickCurrentButton);
 	$oFieldQuickSetup->AddSubBlock($oDivQS);
@@ -264,7 +264,7 @@ function CheckDBSchemaLegacy($oP)
 	
 	$oP->add("<hr/>");
 	$oP->p("Bookmark this button by dragging it in your bookmarks bar in order to skip every setup steps by clicking on your new bookmarklet with a setup page opened");
-	$oP->add("<a href=\"javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://github.com/Combodo/itop-toolkit-community/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();\" onclick=\"javascript:return false;\"> Quick Setup Tool</a>");
+	$oP->add("<a href=\"javascript:(function(){var quicksetup=document.createElement('SCRIPT');quicksetup.type='text/javascript';quicksetup.src='https://cdn.jsdelivr.net/gh/Combodo/itop-toolkit-community@master/js/quick-setup.js';document.getElementsByTagName('head')[0].appendChild(quicksetup);})();\" onclick=\"javascript:return false;\"> Quick Setup Tool</a>");
 
 }
 
