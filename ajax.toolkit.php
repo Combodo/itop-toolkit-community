@@ -822,7 +822,7 @@ try
 				$oCommandsTitle->SetOpenedByDefault(true);
 				$oPage->AddSubBlock($oCommandsTitle);
 				$oCommands = new TextArea("",$sSQLFixAll);
-				$oCommands->AddCSSClasses(['ibo-input-text--export',"ibo-queryoql"]);
+				$oCommands->AddCSSClasses(['ibo-input-text--export',"ibo-query-oql"]);
 				$oCommandsTitle->AddSubBlock($oCommands);
 
 				if (count($aSQLFixesTables) > 0)
