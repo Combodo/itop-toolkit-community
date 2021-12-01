@@ -343,7 +343,7 @@ EOF
  * @throws \ConfigException
  * @throws \CoreException
  */
-function DisplayLegacy(NiceWebPage $oP): void
+function DisplayLegacy(NiceWebPage $oP)
 {
 	$oP->add_script(
 		<<<JS
@@ -710,7 +710,7 @@ $oP->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'toolkit/toolkit.css')
  * @throws \ConfigException
  * @throws \CoreException
  */
-function Display(NiceWebPage $oP): void
+function Display(NiceWebPage $oP)
 {
 
 	$oP->add_linked_script(utils::GetAbsoluteUrlAppRoot().'js/jquery.ba-bbq.min.js');
