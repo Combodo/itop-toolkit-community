@@ -498,7 +498,7 @@ try
 				break;
 
 			case 'check_db_schema':
-				$sCurrEnv = (is_set($_SESSION['itop_env']) && !is_null($_SESSION['itop_env'])) ? $_SESSION['itop_env'] : null;
+				$sCurrEnv = (isset($_SESSION['itop_env']) && !is_null($_SESSION['itop_env'])) ? $_SESSION['itop_env'] : null;
 				$_SESSION['itop_env'] = TOOLKITENV;
 				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 
@@ -761,7 +761,7 @@ try
 				break;
 
 			case 'check_db_schema':
-				$sCurrEnv = (is_set($_SESSION['itop_env']) && !is_null($_SESSION['itop_env'])) ? $_SESSION['itop_env'] : null;
+				$sCurrEnv = (isset($_SESSION['itop_env']) && !is_null($_SESSION['itop_env'])) ? $_SESSION['itop_env'] : null;
 				$_SESSION['itop_env'] = TOOLKITENV;
 				InitDataModel(ITOP_TOOLKIT_CONFIG_FILE, false);
 
