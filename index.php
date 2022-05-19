@@ -562,7 +562,7 @@ function DisplayLegacy(NiceWebPage $oP)
 			sModules = oModules.val();
 		}
 		$('#content_dictionary').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Searching for missing dictionary items');
-		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_dictionary', 'rebuild_toolkit_env': bRefresh, 'lang': sLang },
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_dictionary', 'rebuild_toolkit_env': bRefresh, 'lang': sLang, 'modules': sModules },
 				function(data)
 				{
 					$('#content_dictionary').empty();
@@ -958,7 +958,7 @@ function Display(NiceWebPage $oP)
 		}
 		$('#content_dictionary').html('<img title=\"loading...\" src=\"../images/indicator.gif\" /> Searching for missing dictionary items');
 		$('#bt_content_dictionary').attr("disabled", true);
-		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_dictionary', 'rebuild_toolkit_env': bRefresh, 'lang': sLang },
+		ajax_request = $.get(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', { 'operation': 'check_dictionary', 'rebuild_toolkit_env': bRefresh, 'lang': sLang, 'modules': sModules },
 				function(data)
 				{
 					$('#content_dictionary').empty();
