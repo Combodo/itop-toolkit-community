@@ -18,13 +18,16 @@ If you ever want to begin implementation, do so in a fork, and add a link to the
 
 For all **security related subjects**, please see our [security policy](SECURITY.md).
 
-### 📄 License
+### 📄 License and copyright
 This iTop module is distributed under the AGPL-3.0 license (see the [license.txt] file),
 your code must comply with this license.
 
-If you want to use another license, you may [create another extension][wiki new ext].
+Combodo has the copyright on each and every source file in this repository: please do not modify the existing file copyrights.  
+Anyhow, you are encouraged to signal your contribution by the mean of `@author` annotations.
 
-[license.txt]: license.txt
+If you want to use another license or keep the code ownership (copyright), you may [create another extension][wiki new ext].
+
+[license.txt]: https://github.com/Combodo/iTop/blob/develop/license.txt
 [wiki new ext]: https://www.itophub.io/wiki/page?id=latest%3Acustomization%3Astart#by_writing_your_own_extension
 
 
