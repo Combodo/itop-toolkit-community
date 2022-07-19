@@ -10,12 +10,20 @@ require_once(APPROOT.'/core/cmdbsource.class.inc.php');
 require_once(APPROOT.'/setup/setuppage.class.inc.php');
 require_once(APPROOT.'/setup/wizardcontroller.class.inc.php');
 require_once(APPROOT.'/setup/wizardsteps.class.inc.php');
-require_once(APPROOT.'/setup/applicationinstaller.class.inc.php');			
+require_once(APPROOT.'/setup/applicationinstaller.class.inc.php');
 
 /////////////////////////////////////////////////
-$sParamFile = utils::ReadParam('response_file', 'default-params.xml', true /* CLI allowed */, 'raw_data');
+$sParamFile = utils::ReadParam('response_file', 'null', true /* CLI allowed */, 'raw_data');
+if ($sParamFile === 'null') {
+	echo "No `--response_file` param specified, using default value !\n";
+	$sParamFile = 'default-params.xml';
+}
 $bCheckConsistency = (utils::ReadParam('check_consistency', '0', true /* CLI allowed */) == '1');
 
+if (false === file_exists($sParamFile)) {
+	echo "Param file `$sParamFile` doesn't exist ! Exiting...";
+	exit - 1;
+}
 $oParams = new XMLParameters($sParamFile);
 
 $aDBSettings = $oParams->Get('database', array());
