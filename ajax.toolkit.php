@@ -827,8 +827,9 @@ try
 
 				if (count($aSQLFixesTables) > 0)
 				{
-					$oButtonUpCodeAndDb = ButtonUIBlockFactory::MakeForPrimaryAction("Compile + Update DB tables and views","e","📀 Update iTop code and Database! ", true,"bt_up_code_and_db");
+					$oButtonUpCodeAndDb = ButtonUIBlockFactory::MakeForPrimaryAction("📀 Update iTop code and Database!",null,null, true,"bt_up_code_and_db");
 					$oButtonUpCodeAndDb->SetOnClickJsCode("doApply(true);");
+					$oButtonUpCodeAndDb->SetTooltip("Compile + Update DB tables and views");
 					$oPage->AddSubBlock($oButtonUpCodeAndDb);
 				}
 
@@ -848,14 +849,14 @@ try
 
 				if ($bUpdateNeeded)
 				{
-					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Compute HKeys","e","Compute HKeys ", false,"bt_compute_hk");
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Compute HKeys",null,null, false,"bt_compute_hk");
 					$oButtonBuildHK->SetOnClickJsCode("BuildHK(false);");
 					$oButtonBuildHK->AddCSSClass("mb-5");
 					$oPage->AddSubBlock($oButtonBuildHK);
 				}
 				else
 				{
-					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Rebuild HKeys Anyway","e","Rebuild HKeys Anyway ", false,"bt_compute_hk");
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Rebuild HKeys Anyway",null,null, false,"bt_compute_hk");
 					$oButtonBuildHK->SetOnClickJsCode("BuildHK(true);");
 					$oButtonBuildHK->AddCSSClass("mb-5");
 					$oPage->AddSubBlock($oButtonBuildHK);
@@ -888,7 +889,7 @@ try
 				ob_end_clean();
 				if ($bUpdateNeeded)
 				{
-					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Fix Data Sources","e","Fix Data Sources ", false,"bt_fix_DS");
+					$oButtonBuildHK = ButtonUIBlockFactory::MakeForPrimaryAction("Fix Data Sources",null,null, false,"bt_fix_DS");
 					$oButtonBuildHK->SetOnClickJsCode("FixDataSources();");
 					$oPage->AddSubBlock($oButtonBuildHK);
 				}
