@@ -832,6 +832,10 @@ try
 					$oPage->AddSubBlock($oButtonUpCodeAndDb);
 				}
 
+				$oButtonSchema = ButtonUIBlockFactory::MakeForPrimaryAction("⟳ Refresh",null, null,false, "bt_content_schema");
+				$oButtonSchema->SetOnClickJsCode('CheckDBSchema(true);');
+				$oButtonSchema->SetIconClass("fas fa-redo");
+				$oPage->AddSubBlock($oButtonSchema);
 
 				break;
 
