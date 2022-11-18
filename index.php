@@ -26,7 +26,6 @@ use Combodo\iTop\Application\UI\Base\Component\Form\FormUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Html\Html;
 use Combodo\iTop\Application\UI\Base\Component\Input\InputUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Component\Panel\PanelUIBlockFactory;
-use Combodo\iTop\Application\UI\Base\Component\Title\TitleUIBlockFactory;
 use Combodo\iTop\Application\UI\Base\Layout\TabContainer\TabContainer;
 use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
 
@@ -756,33 +755,42 @@ function Display(NiceWebPage $oP)
 			} else {
 				$('#bt_up_code_and_db').attr("disabled", true);
 			}
-			ajax_request = $.post(GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php', oMap,
-					function(data)
+			ajax_request = $.ajax({
+				url: GetAbsoluteUrlAppRoot()+'toolkit/ajax.toolkit.php',
+				data: oMap,
+				success: function(data)	{
+					$('#content_apply_sql').empty();
+					if (data == '')
 					{
-						$('#content_apply_sql').empty();
-						if (data == '')
-						{
-							$('#content_apply_sql').append('Nothing done !');
-							notifyMe('Nothing done !')
-						}
-						else
-						{
-							$('#content_apply_sql').append(data);
-							notifyMe('Update finished')
-						}
-						$('#content_apply_sql').slideDown('slow');
-											
-						$('#apply_sql_indicator').html('');
-						document.title = sOriginalTitle;
-						
-						if (bFull)
-						{
-							$('#bt_content_apply_sql').attr("disabled", false);
-						} else {
-							$('#bt_up_code_and_db').attr("disabled", false);
-						}
+						$('#content_apply_sql').append('Nothing done !');
+						notifyMe('Nothing done !')
 					}
-			);		
+					else
+					{
+						$('#content_apply_sql').append(data);
+						notifyMe('Update finished')
+					}
+					$('#content_apply_sql').slideDown('slow');
+										
+					$('#apply_sql_indicator').html('');
+					document.title = sOriginalTitle;
+					
+					if (bFull)
+					{
+						$('#bt_content_apply_sql').attr("disabled", false);
+					} else {
+						$('#bt_up_code_and_db').attr("disabled", false);
+					}
+				},
+				error: function() {
+					$('#content_apply_sql').empty();
+					$('#content_apply_sql').append('Error !');
+					notifyMe('Nothing done !')
+					$('#apply_sql_indicator').html('');
+					document.title = sOriginalTitle;
+					$('#content_apply_sql').slideDown('slow');
+				}
+			});		
 		}
 	}
 	

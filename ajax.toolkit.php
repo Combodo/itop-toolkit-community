@@ -399,6 +399,8 @@ function InitDataModel($sConfigFileName, $bModelOnly = true)
  * Main Program
  *
  ****************************************************************************/
+$bBypassMaintenance = true; // Reset maintenance mode in case of problem
+
 if (file_exists('../approot.inc.php'))
 {
 	include('../approot.inc.php');
@@ -414,12 +416,19 @@ if (class_exists('\Combodo\iTop\Application\Helper\Session')) {
 	session_start();
 }
 
+
 try
 {
 	require_once(APPROOT."setup/runtimeenv.class.inc.php");
 	require_once(APPROOT.'/application/utils.inc.php');
 	define('ITOP_TOOLKIT_CONFIG_FILE', APPCONF.TOOLKITENV.'/'.ITOP_CONFIG_FILE);
 
+	// Cleanup maintenance mode
+	if (method_exists(SetupUtils::class, 'IsInMaintenanceMode')) {
+		if (SetupUtils::IsInMaintenanceMode()) {
+			SetupUtils::ExitMaintenanceMode();
+		}
+	}
 
 	$bRebuildToolkitEnv = (utils::ReadParam('rebuild_toolkit_env', '') == 'true');
 	if ($bRebuildToolkitEnv)
