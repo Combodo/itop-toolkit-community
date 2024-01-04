@@ -21,7 +21,7 @@
 /**
  * @since 3.2.0 @see N°7059 - Symfony 6.4 - Application skeleton
  */
-use App\Kernel;
+use Combodo\iTop\Kernel;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 
 if (!is_file(dirname(__DIR__).'/../lib/autoload_runtime.php')) {
