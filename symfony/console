@@ -29,6 +29,7 @@ if (!is_file(dirname(__DIR__).'/../lib/autoload_runtime.php')) {
 }
 
 require_once dirname(__DIR__).'/../lib/autoload_runtime.php';
+require_once dirname(__DIR__).'/../approot.inc.php';
 
 return function (array $context) {
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
