@@ -52,7 +52,7 @@ function CheckConsistency()
 	$oDivAction=UIContentBlockUIBlockFactory::MakeStandard("content_php",['ibo-is-html-content']);
 	$oBlock->AddSubBlock($oDivAction);
 
-	$oButton=ButtonUIBlockFactory::MakeForPrimaryAction("Check Consistency","a","b",false,"bt_content_php");
+	$oButton=ButtonUIBlockFactory::MakeForPrimaryAction("Check Consistency",null,null,false,"bt_content_php");
 	$oButton->SetOnClickJsCode('CheckConsistency(true);');
 	$oBlock->AddSubBlock($oButton);
 	return $oBlock;
@@ -73,7 +73,7 @@ function CheckDBSchema()
 	$oDivAction=UIContentBlockUIBlockFactory::MakeStandard("content_schema",['ibo-is-visible']);
 	$oFieldSetDB->AddSubBlock($oDivAction);
 
-	$oButtonSchema=ButtonUIBlockFactory::MakeForPrimaryAction("📀 Check DB Schema","a","b",false, "bt_content_schema");
+	$oButtonSchema=ButtonUIBlockFactory::MakeForPrimaryAction("📀 Check DB Schema",null,null,false, "bt_content_schema");
 	$oButtonSchema->SetOnClickJsCode('CheckDBSchema(true);');
 	$oDivAction->AddSubBlock($oButtonSchema);
 
@@ -99,8 +99,9 @@ function CheckDBSchema()
 	}
 	$oDivButton = UIContentBlockUIBlockFactory::MakeStandard("div_bt_compilation",['ibo-is-visible','mt-5','mb-5']);
 	$oFieldSetCompile->AddSubBlock($oDivButton);
-	$oButtonCompile=ButtonUIBlockFactory::MakeForPrimaryAction("📄 Update iTop code","Compile from $sSourceDirHtml to env-production","b",false, "bt_content_apply_sql");
+	$oButtonCompile=ButtonUIBlockFactory::MakeForPrimaryAction("📄 Update iTop code",null,null,false, "bt_content_apply_sql");
 	$oButtonCompile->SetOnClickJsCode('doApply(false);');
+	$oButtonCompile->SetTooltip("Compile from $sSourceDirHtml to env-production");
 	$oDivButton->AddSubBlock($oButtonCompile);
 
 	$oFieldSetCompile->AddSubBlock(new Html('<span id="apply_sql_indicator"></span>'));
@@ -133,7 +134,7 @@ function CheckDataIntegrity()
 	$oBlock->AddSubBlock($oFieldSetDatasources);
 	$oDivDatasources=UIContentBlockUIBlockFactory::MakeStandard("content_datasources",['ibo-is-visible']);
 	$oFieldSetDatasources->AddSubBlock($oDivDatasources);
-	$oButtonDatasources=ButtonUIBlockFactory::MakeForPrimaryAction("Check Data Sources","a","b", false, "bt_content_datasources");
+	$oButtonDatasources=ButtonUIBlockFactory::MakeForPrimaryAction("Check Data Sources",null,null, false, "bt_content_datasources");
 	$oButtonDatasources->SetOnClickJsCode('CheckDataSources(true);');
 	$oFieldSetDatasources->AddSubBlock($oButtonDatasources);
 
@@ -141,7 +142,7 @@ function CheckDataIntegrity()
 	$oBlock->AddSubBlock($oFieldSetKeys);
 	$oDivKeys=UIContentBlockUIBlockFactory::MakeStandard("content_hk",['ibo-is-html-content']);
 	$oFieldSetKeys->AddSubBlock($oDivKeys);
-	$oButtonKeys=ButtonUIBlockFactory::MakeForPrimaryAction("Check Hierarchical Keys","a","b", false, "bt_content_hk");
+	$oButtonKeys=ButtonUIBlockFactory::MakeForPrimaryAction("Check Hierarchical Keys",null,null, false, "bt_content_hk");
 	$oButtonKeys->SetOnClickJsCode('CheckHK(true);');
 	$oFieldSetKeys->AddSubBlock($oButtonKeys);
 
@@ -165,7 +166,7 @@ function CheckDictionary()
 	$oDivAction=UIContentBlockUIBlockFactory::MakeStandard("content_dictionary",['ibo-is-visible']);
 	$oTabComplete->AddSubBlock($oDivAction);
 
-	$oButton=ButtonUIBlockFactory::MakeForPrimaryAction("🌐 Check Dictionary","a","b");
+	$oButton=ButtonUIBlockFactory::MakeForPrimaryAction("🌐 Check Dictionary");
 	$oButton->SetOnClickJsCode('CheckDictionary(true);');
 	$oButton->AddCSSClass('mt-5');
 	$oTabComplete->AddSubBlock($oButton);
@@ -197,7 +198,7 @@ function CheckDictionary()
 	$oInputLocalized->GetInput()->SetPlaceholder("eg. Français");
 	$oFormPrepare->AddSubBlock($oInputLocalized);
 
-	$oButtonGenerate=ButtonUIBlockFactory::MakeForPrimaryAction("Generate","a","b",false, "bt_prepare_new_dictionary");
+	$oButtonGenerate=ButtonUIBlockFactory::MakeForPrimaryAction("Generate",null,null,false, "bt_prepare_new_dictionary");
 	$oButtonGenerate->SetOnClickJsCode(' PrepareNewDictionary(true);');
 	$oButtonGenerate->AddCSSClass('mb-5');
 	$oFormPrepare->AddSubBlock($oButtonGenerate);
