@@ -556,7 +556,7 @@ try
 				}
 				if (count($aSQLFixesTables) == 0)
 				{
-					echo "<p>Ok, the database format is compliant with the data model. (Note: the views have not been checked)</p>\n";
+					echo "<p>Ok, the database format is compliant with the data model.</p>\n";
 				}
 				echo "<p>&nbsp;</p>\n";
 				if (function_exists('symlink'))
@@ -566,7 +566,7 @@ try
 				echo "<input type=\"button\" value=\"⟳ Refresh \" onclick=\"CheckDBSchema(true);\"/>\n";
 				if (count($aSQLFixesTables) > 0)
 				{
-					echo "<input type=\"submit\" onclick=\"doApply(true);\"title=\"Compile + Update DB tables and views\" value=\"📀 Update iTop code and Database! \"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
+					echo "<input type=\"submit\" onclick=\"doApply(true);\" title=\"Compile + Update DB tables\" value=\"📀 Update iTop code and Database!\"/>&nbsp;<span id=\"apply_sql_indicator\"></span>\n";
 				}
 				$sSourceDir = MetaModel::GetConfig()->Get('source_dir');
 				$sSourceDirHtml = htmlentities($sSourceDir, ENT_QUOTES, 'UTF-8');
@@ -650,7 +650,7 @@ try
 				$oEnvironment = new RunTimeEnvironment('production');
 				$oEnvironment->CompileFrom('production', $bUseSymlinks);
 
-				echo "<p>Updating the DB format (tables and views)...</p>";
+				echo "<p>Updating the DB format...</p>";
 				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 				$aAnalysis = CheckDBSchema();
 
@@ -823,7 +823,7 @@ try
 				}
 				if (count($aSQLFixesTables) == 0)
 				{
-					$oPage->AddSubBlock(AlertUIBlockFactory::MakeForSuccess( "Ok, the database format is compliant with the data model. (Note: the views have not been checked)"));
+					$oPage->AddSubBlock(AlertUIBlockFactory::MakeForSuccess( "Ok, the database format is compliant with the data model."));
 				}
 
 				$sSQLFixAll = $aAnalysis['*CondensedQueries']['sql'];
@@ -836,7 +836,7 @@ try
 
 				if (count($aSQLFixesTables) > 0)
 				{
-					$oButtonUpCodeAndDb = ButtonUIBlockFactory::MakeForPrimaryAction("Compile + Update DB tables and views","e","📀 Update iTop code and Database! ", true,"bt_up_code_and_db");
+					$oButtonUpCodeAndDb = ButtonUIBlockFactory::MakeForPrimaryAction("Compile + Update DB tables","e","📀 Update iTop code and Database! ", true,"bt_up_code_and_db");
 					$oButtonUpCodeAndDb->SetOnClickJsCode("doApply(true);");
 					$oPage->AddSubBlock($oButtonUpCodeAndDb);
 				}
@@ -935,7 +935,7 @@ try
 				$oEnvironment = new RunTimeEnvironment('production');
 				$oEnvironment->CompileFrom('production', $bUseSymlinks);
 
-				$oAlert = AlertUIBlockFactory::MakeForSuccess(" Compiling...","Updating the DB format (tables and views)...");
+				$oAlert = AlertUIBlockFactory::MakeForSuccess(" Compiling...","Updating the DB format...");
 				$oPage->AddSubBlock($oAlert);
 				InitDataModel(ITOP_DEFAULT_CONFIG_FILE, false);
 				$aAnalysis = CheckDBSchema();
