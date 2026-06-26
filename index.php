@@ -90,7 +90,8 @@ function CheckDBSchema()
 		$oCheckbox->GetInput()->AddCSSClass('ibo-input-checkbox');
 		$oFieldSetCompile->AddSubBlock($oCheckbox);
 
-		if (defined('\MFCompiler::USE_SYMBOLIC_LINKS_FILE_PATH') && (\MFCompiler::IsUseSymbolicLinksFlagPresent()))
+        $sSymbolicLinksMethodName = version_compare(ITOP_CORE_VERSION, '3.3.0', '>=') ? 'UseSymbolicLinks' : 'IsUseSymbolicLinksFlagPresent';
+		if (defined('\MFCompiler::USE_SYMBOLIC_LINKS_FILE_PATH') && (\MFCompiler::$sSymbolicLinksMethodName()))
 		{
 			/** @var \Combodo\iTop\Application\UI\Base\Component\Input\Input $oCheckboxInput */
 			$oCheckboxInput = $oCheckbox->GetInput();
@@ -1063,4 +1064,3 @@ catch(Exception $e)
 }
 
 $oP->output();
-?>
