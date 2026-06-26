@@ -387,9 +387,10 @@ function CheckDBSchema()
 
 function InitDataModel($sConfigFileName, $bModelOnly = true)
 {
-
-
-	MetaModel::ResetCache();
+    // Only for iTop 3.2.0, was deprecated afterwards
+    if (version_compare(ITOP_CORE_VERSION, '3.3.0', '<')) {
+	    MetaModel::ResetCache();
+    }
 	MetaModel::Startup($sConfigFileName, $bModelOnly, false /* allow cache */, false /* $bTraceSourceFiles */, TOOLKITENV);
 }
 
