@@ -702,11 +702,7 @@ if (!file_exists(ITOP_DEFAULT_CONFIG_FILE))
 require_once(APPROOT.'/application/startup.inc.php');
 
 $oP = new NiceWebPage('Data Model Toolkit');
-if (version_compare(ITOP_DESIGN_LATEST_VERSION, "3.2", "<")) {
-    $oP->add_linked_stylesheet(utils::GetAbsoluteUrlAppRoot().'toolkit/toolkit.css');
-} else {
-    $oP->LinkStylesheetFromAppRoot('toolkit/toolkit.css');
-}
+$oP->LinkStylesheetFromAppRoot('toolkit/toolkit.css');
 
 /**
  * @param \NiceWebPage $oP
